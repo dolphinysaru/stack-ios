@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="CategoryEditTableViewCell" rowHeight="50" id="KGk-i7-Jjw" customClass="CategoryEditTableViewCell" customModule="moneybook" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="50"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="50"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tML-C7-Ch4">
+                        <rect key="frame" x="16" y="14.5" width="186" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="aHG-4X-6QB"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ibI-l5-XdN">
+                        <rect key="frame" x="261" y="8" width="43" height="34"/>
+                        <color key="backgroundColor" systemColor="systemBlueColor"/>
+                        <constraints>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" id="kVc-b5-P6g"/>
+                            <constraint firstAttribute="height" constant="34" id="xJj-of-FNS"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                        <inset key="contentEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                        <state key="normal" title="편집"/>
+                        <connections>
+                            <action selector="editButtonAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="1vI-1Q-g42"/>
+                        </connections>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d66-C6-YyB">
+                        <rect key="frame" x="210" y="8" width="43" height="34"/>
+                        <color key="backgroundColor" systemColor="systemBlueColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="34" id="4yx-SC-hZP"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" id="w7G-v6-Wxb"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                        <inset key="contentEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                        <state key="normal" title="편집"/>
+                        <connections>
+                            <action selector="removeToggleButtonAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="VXq-wh-Eyu"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="tML-C7-Ch4" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="07g-5c-aM7"/>
+                    <constraint firstAttribute="trailing" secondItem="ibI-l5-XdN" secondAttribute="trailing" constant="16" id="CNJ-k2-n9d"/>
+                    <constraint firstItem="d66-C6-YyB" firstAttribute="leading" secondItem="tML-C7-Ch4" secondAttribute="trailing" constant="8" id="CZa-hi-EkV"/>
+                    <constraint firstItem="ibI-l5-XdN" firstAttribute="leading" secondItem="d66-C6-YyB" secondAttribute="trailing" constant="8" symbolic="YES" id="GCt-EY-cfa"/>
+                    <constraint firstItem="tML-C7-Ch4" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="Zwy-yV-4fF"/>
+                    <constraint firstItem="ibI-l5-XdN" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="bZg-b9-k8i"/>
+                    <constraint firstItem="d66-C6-YyB" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="rts-OJ-eah"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="editButton" destination="ibI-l5-XdN" id="1D5-5n-0wr"/>
+                <outlet property="removeToggleButton" destination="d66-C6-YyB" id="CbH-rO-427"/>
+                <outlet property="titleLabel" destination="tML-C7-Ch4" id="dWP-pO-RDo"/>
+            </connections>
+            <point key="canvasLocation" x="131.8840579710145" y="130.58035714285714"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemBlueColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

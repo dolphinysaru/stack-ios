@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="StatViewController" customModule="moneybook" customModuleProvider="target">
+            <connections>
+                <outlet property="containerView" destination="02Y-pR-cox" id="pgH-Ef-pWY"/>
+                <outlet property="selectionBarX" destination="PoC-Aq-Mu0" id="cAm-Dl-jWY"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outletCollection property="cycleButtons" destination="cyA-uA-Mzt" collectionClass="NSMutableArray" id="Xrr-XQ-x7b"/>
+                <outletCollection property="cycleButtons" destination="LLQ-TJ-0wv" collectionClass="NSMutableArray" id="yr7-A2-M1L"/>
+                <outletCollection property="cycleButtons" destination="bFv-JZ-Mcf" collectionClass="NSMutableArray" id="bA4-bf-e7P"/>
+                <outletCollection property="cycleButtons" destination="M29-Pb-XG0" collectionClass="NSMutableArray" id="xjv-bg-JNR"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="725"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" tag="10" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cyA-uA-Mzt">
+                    <rect key="frame" x="20" y="0.0" width="93.5" height="30"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                    <state key="normal" title="일">
+                        <color key="titleColor" systemColor="labelColor"/>
+                    </state>
+                    <connections>
+                        <action selector="cycleButtonAction:" destination="-1" eventType="touchUpInside" id="Bq4-Wh-DE9"/>
+                    </connections>
+                </button>
+                <button opaque="NO" tag="11" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LLQ-TJ-0wv">
+                    <rect key="frame" x="113.5" y="0.0" width="93.5" height="30"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                    <state key="normal" title="주">
+                        <color key="titleColor" systemColor="secondaryLabelColor"/>
+                    </state>
+                    <connections>
+                        <action selector="cycleButtonAction:" destination="-1" eventType="touchUpInside" id="weX-Y6-kXe"/>
+                    </connections>
+                </button>
+                <button opaque="NO" tag="12" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bFv-JZ-Mcf">
+                    <rect key="frame" x="207" y="0.0" width="93.5" height="30"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                    <state key="normal" title="월">
+                        <color key="titleColor" systemColor="secondaryLabelColor"/>
+                    </state>
+                    <connections>
+                        <action selector="cycleButtonAction:" destination="-1" eventType="touchUpInside" id="TOF-5Z-Lfy"/>
+                    </connections>
+                </button>
+                <button opaque="NO" tag="13" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M29-Pb-XG0">
+                    <rect key="frame" x="300.5" y="0.0" width="93.5" height="33"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                    <state key="normal" title="년">
+                        <color key="titleColor" systemColor="secondaryLabelColor"/>
+                    </state>
+                    <connections>
+                        <action selector="cycleButtonAction:" destination="-1" eventType="touchUpInside" id="EXl-DH-49Q"/>
+                    </connections>
+                </button>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="M49-5f-ROm">
+                    <rect key="frame" x="20" y="30" width="93.5" height="2"/>
+                    <color key="backgroundColor" systemColor="labelColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="2" id="ZPE-gv-1t8"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="02Y-pR-cox">
+                    <rect key="frame" x="0.0" y="40" width="414" height="685"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="02Y-pR-cox" firstAttribute="bottom" secondItem="fnl-2z-Ty3" secondAttribute="bottom" id="7BX-In-bhP"/>
+                <constraint firstItem="M29-Pb-XG0" firstAttribute="width" secondItem="cyA-uA-Mzt" secondAttribute="width" id="8VG-KK-pd6"/>
+                <constraint firstItem="M29-Pb-XG0" firstAttribute="leading" secondItem="bFv-JZ-Mcf" secondAttribute="trailing" id="9Xt-Fu-phD"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="M29-Pb-XG0" secondAttribute="trailing" constant="20" id="AlF-0P-LXl"/>
+                <constraint firstItem="M49-5f-ROm" firstAttribute="width" secondItem="cyA-uA-Mzt" secondAttribute="width" id="AuU-qD-Jsr"/>
+                <constraint firstItem="bFv-JZ-Mcf" firstAttribute="leading" secondItem="LLQ-TJ-0wv" secondAttribute="trailing" id="Bch-yJ-oaa"/>
+                <constraint firstItem="LLQ-TJ-0wv" firstAttribute="width" secondItem="bFv-JZ-Mcf" secondAttribute="width" id="K6U-jB-Nub"/>
+                <constraint firstItem="02Y-pR-cox" firstAttribute="trailing" secondItem="fnl-2z-Ty3" secondAttribute="trailing" id="KFj-sJ-lM3"/>
+                <constraint firstItem="cyA-uA-Mzt" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="PTS-65-AaM"/>
+                <constraint firstItem="M49-5f-ROm" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="PoC-Aq-Mu0"/>
+                <constraint firstItem="bFv-JZ-Mcf" firstAttribute="width" secondItem="M29-Pb-XG0" secondAttribute="width" id="W1D-HF-IYy"/>
+                <constraint firstItem="bFv-JZ-Mcf" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="Xkr-hX-Bxs"/>
+                <constraint firstItem="cyA-uA-Mzt" firstAttribute="width" secondItem="LLQ-TJ-0wv" secondAttribute="width" id="ZD4-fv-SL0"/>
+                <constraint firstItem="LLQ-TJ-0wv" firstAttribute="leading" secondItem="cyA-uA-Mzt" secondAttribute="trailing" id="jZp-8i-tde"/>
+                <constraint firstItem="M29-Pb-XG0" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="rUY-qC-hRl"/>
+                <constraint firstItem="02Y-pR-cox" firstAttribute="top" secondItem="M29-Pb-XG0" secondAttribute="bottom" constant="7" id="t0N-qJ-Zrs"/>
+                <constraint firstItem="M49-5f-ROm" firstAttribute="top" secondItem="cyA-uA-Mzt" secondAttribute="bottom" id="tHH-4g-wB5"/>
+                <constraint firstItem="cyA-uA-Mzt" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="20" id="tgT-JK-N24"/>
+                <constraint firstItem="02Y-pR-cox" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" id="uI8-AC-4T4"/>
+                <constraint firstItem="LLQ-TJ-0wv" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="un9-RE-ya2"/>
+            </constraints>
+            <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
+            <simulatedTabBarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
+            <point key="canvasLocation" x="131.8840579710145" y="111.83035714285714"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

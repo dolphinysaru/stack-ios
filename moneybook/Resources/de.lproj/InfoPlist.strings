@@ -1,0 +1,10 @@
+/* 
+  InfoPlist.strings
+  moneybook
+
+  Created by jedmin on 2022/01/26.
+  
+*/
+
+"NSUserTrackingUsageDescription" = "Diese Kennung wird verwendet, um Ihnen personalisierte Anzeigen zu liefern.";
+"CFBundleDisplayName" = "Stack";
