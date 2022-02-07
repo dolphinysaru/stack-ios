@@ -17,6 +17,8 @@ let isEnabledAd = true
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    var appOpenAd: GADAppOpenAd?
+    var isEnterBackground = true
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -31,15 +33,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        isEnterBackground = true
+    }
+    
     func applicationDidBecomeActive(_ application: UIApplication) {
         ReviewHelper.reviewIfNeeded()
         
+        if !isEnterBackground {
+            return
+        }
+        
+        isEnterBackground = false
+        appOpenAd = nil
+        
         if #available(iOS 14, *) {
-            ATTrackingManager.requestTrackingAuthorization(completionHandler: { _ in
+            ATTrackingManager.requestTrackingAuthorization(completionHandler: { [weak self] _ in
                 // Tracking authorization completed. Start loading ads here.
+                self?.tryToPresentAd()
             })
         } else {
-            
+            tryToPresentAd()
         }
     }
     
@@ -65,3 +79,54 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
+extension AppDelegate: GADFullScreenContentDelegate {
+    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("Ad did fail to present full screen content.")
+    }
+    
+    /// Tells the delegate that the ad presented full screen content.
+    func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad did present full screen content.")
+    }
+    
+    /// Tells the delegate that the ad dismissed full screen content.
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad did dismiss full screen content.")
+    }
+}
+
+extension AppDelegate {
+    func requestAppOpenAd() {
+#if DEBUG
+        let adUnitID = "ca-app-pub-3940256099942544/5662855259"
+#else
+        let adUnitID = ga_openning
+#endif
+        
+        appOpenAd = nil
+        GADAppOpenAd.load(
+            withAdUnitID: adUnitID,
+            request: GADRequest(),
+            orientation: UIInterfaceOrientation.portrait) { (ad, error) in
+                
+                if let error = error {
+                    print("Failed to load app open ad: \(error)");
+                    return
+                }
+                
+                self.appOpenAd = ad
+                self.appOpenAd?.fullScreenContentDelegate = self
+                self.tryToPresentAd()
+            }
+    }
+    
+    func tryToPresentAd() {
+        if let ad = appOpenAd {
+            if let vc = window?.rootViewController {
+                ad.present(fromRootViewController: vc)
+            }
+        } else {
+            requestAppOpenAd()
+        }
+    }
+}
