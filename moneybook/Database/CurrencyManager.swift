@@ -34,6 +34,8 @@ struct CurrencyManager {
     static func setupCurrencyIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: UserDefault.currency_is_set) else { return }
         
+        UserDefaults.standard.set(true, forKey: UserDefault.currency_is_set)
+        
         let locale = Locale.current
         UserDefaults.standard.set(locale.currencySymbol ?? "", forKey: UserDefault.currency_symbol)
         UserDefaults.standard.set(locale.currencyCode ?? "", forKey: UserDefault.currency_code)
