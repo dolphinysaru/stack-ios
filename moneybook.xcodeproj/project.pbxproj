@@ -115,6 +115,8 @@
 		19B2ACE9278DC0BF005B5472 /* ItemTitleTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 19B2ACE7278DC0BF005B5472 /* ItemTitleTableViewCell.xib */; };
 		19B2ACF0278DC1FB005B5472 /* ItemMemoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2ACEE278DC1FB005B5472 /* ItemMemoTableViewCell.swift */; };
 		19B2ACF1278DC1FB005B5472 /* ItemMemoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */; };
+		19B92E3527C4C46300E1D1F9 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */; };
+		19B92E3627C4C46300E1D1F9 /* InAppProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */; };
 		509D3B3A123B5DDBC1C6B3B3 /* Pods_moneybook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4DCBC28168995E233F887F7 /* Pods_moneybook.framework */; };
 /* End PBXBuildFile section */
 
@@ -257,6 +259,8 @@
 		19B2ACE7278DC0BF005B5472 /* ItemTitleTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemTitleTableViewCell.xib; sourceTree = "<group>"; };
 		19B2ACEE278DC1FB005B5472 /* ItemMemoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemMemoTableViewCell.swift; sourceTree = "<group>"; };
 		19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemMemoTableViewCell.xib; sourceTree = "<group>"; };
+		19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
+		19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAppProducts.swift; sourceTree = "<group>"; };
 		94CDF4197858CB10DB74DDD4 /* Pods-moneybook.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moneybook.release.xcconfig"; path = "Target Support Files/Pods-moneybook/Pods-moneybook.release.xcconfig"; sourceTree = "<group>"; };
 		C4DCBC28168995E233F887F7 /* Pods_moneybook.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_moneybook.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -378,6 +382,7 @@
 		19B00D79278075D10016F543 /* moneybook */ = {
 			isa = PBXGroup;
 			children = (
+				19B92E3227C4C46300E1D1F9 /* IAP */,
 				194060D8279FFFF00028F4F1 /* GoogleAd */,
 				194060CB279FF7FD0028F4F1 /* Featured */,
 				19B00DAA278077340016F543 /* Model */,
@@ -557,6 +562,15 @@
 				19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */,
 			);
 			path = Item;
+			sourceTree = "<group>";
+		};
+		19B92E3227C4C46300E1D1F9 /* IAP */ = {
+			isa = PBXGroup;
+			children = (
+				19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */,
+				19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */,
+			);
+			path = IAP;
 			sourceTree = "<group>";
 		};
 		439654503FB41385EF779006 /* Pods */ = {
@@ -802,6 +816,7 @@
 				19B2ACD8278C85D9005B5472 /* Array+.swift in Sources */,
 				1994F41327833DE5003DFBCE /* Budget.swift in Sources */,
 				1946ED2A279EAC050056F090 /* CategoryEditViewController.swift in Sources */,
+				19B92E3627C4C46300E1D1F9 /* InAppProducts.swift in Sources */,
 				194060C4279EF1BC0028F4F1 /* InputTableViewCell.swift in Sources */,
 				19B00DB1278077AF0016F543 /* MoreViewController.swift in Sources */,
 				1946ED1127995FE50056F090 /* DateSmallPickerTableViewCell.swift in Sources */,
@@ -814,6 +829,7 @@
 				194060D1279FF7FD0028F4F1 /* FeaturedTableViewCell.swift in Sources */,
 				1946ED1C279D8A030056F090 /* GraphTableViewCell.swift in Sources */,
 				19B00DF22781A3E90016F543 /* LoadableNib.swift in Sources */,
+				19B92E3527C4C46300E1D1F9 /* IAPHelper.swift in Sources */,
 				19B00DDC278151050016F543 /* InputPriceViewController.swift in Sources */,
 				194060C7279EFC170028F4F1 /* String+.swift in Sources */,
 				19B2ACCE278C28E7005B5472 /* PriceTextField.swift in Sources */,
@@ -1077,7 +1093,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1109,7 +1125,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -55,9 +55,17 @@ class BaseViewController: UIViewController {
                     self?.loadGABannerView()
                 }
             }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(removeBannerView), name: .IAPHelperPurchaseNotification, object: nil)
+    }
+    
+    @objc func removeBannerView() {
+        gadBannerView?.removeFromSuperview()
     }
     
     func loadGAInterstitial() {
+        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+        
         #if DEBUG
         let adid = "ca-app-pub-3940256099942544/4411468910"
         #else
@@ -152,6 +160,8 @@ class BaseViewController: UIViewController {
     }
     
     func loadGABannerView() {
+        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+        
         guard let gaId = gaId else { return }
         guard isEnabledAd else { return }
         

@@ -11,6 +11,7 @@ import Firebase
 import GoogleMobileAds
 import AppTrackingTransparency
 import AdSupport
+import SwiftyStoreKit
 
 let isEnabledAd = true
 
@@ -23,6 +24,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
+        let _ = InAppProducts.store
+        
+        let appleValidator = AppleReceiptValidator(service: .production, sharedSecret: "8c9c6410410842d2847e94d839fe3792")
+        SwiftyStoreKit.verifyReceipt(using: appleValidator) { result in
+            switch result {
+            case .success(let receipt):
+                let productId = InAppProducts.product
+                // Verify the purchase of a Subscription
+                let purchaseResult = SwiftyStoreKit.verifySubscription(
+                    ofType: .autoRenewable, // or .nonRenewing (see below)
+                    productId: productId,
+                    inReceipt: receipt)
+                    
+                switch purchaseResult {
+                case .purchased(let expiryDate, let items):
+                    print("\(productId) is valid until \(expiryDate)\n\(items)\n")
+                    InAppProducts.store.purchasedProduct(identifier: InAppProducts.product)
+                case .expired(let expiryDate, let items):
+                    print("\(productId) is expired since \(expiryDate)\n\(items)\n")
+                    InAppProducts.store.expiredProduct(identifier: InAppProducts.product)
+                case .notPurchased:
+                    print("The user has never purchased \(productId)")
+                    InAppProducts.store.expiredProduct(identifier: InAppProducts.product)
+                }
+
+            case .error(let error):
+                print("Receipt verification failed: \(error)")
+            }
+        }
+                
         FirebaseApp.configure()
         GADMobileAds.sharedInstance().start(completionHandler: nil)
         
@@ -97,6 +128,8 @@ extension AppDelegate: GADFullScreenContentDelegate {
 
 extension AppDelegate {
     func requestAppOpenAd() {
+        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+        
 #if DEBUG
         let adUnitID = "ca-app-pub-3940256099942544/5662855259"
 #else
@@ -121,6 +154,8 @@ extension AppDelegate {
     }
     
     func tryToPresentAd() {
+        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+        
         if let ad = appOpenAd {
             if let vc = window?.rootViewController {
                 ad.present(fromRootViewController: vc)

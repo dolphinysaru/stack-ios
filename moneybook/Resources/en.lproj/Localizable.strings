@@ -103,3 +103,12 @@
 "monthly_calendar" = "Monthly";
 "yearly_calendar" = "Yearly";
 "add" = "Add";
+"buy" = "Purchase";
+"restore" = "Restore";
+"month" = "month";
+"proversion_footer" = "You will be billed %@ per month.";
+"already_iap_buy" = "Your purchase has been completed.";
+"failed_iap_buy" = "Purchase failed. please try again.";
+"common_confirm" = "Done";
+"success_restore" = "Restoration was successful.";
+"fail_restore" = "Restore failed.";

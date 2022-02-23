@@ -103,3 +103,12 @@
 "monthly_calendar" = "Monatlich";
 "yearly_calendar" = "Jährlich";
 "add" = "Hinzufügen";
+"buy" = "Kaufen";
+"restore" = "Wiederherstellen";
+"month" = "monat";
+"proversion_footer" = "Ihnen werden %@ pro Monat in Rechnung gestellt.";
+"already_iap_buy" = "Ihr Einkauf ist abgeschlossen.";
+"failed_iap_buy" = "Kauf gescheitert. Bitte versuche es erneut.";
+"common_confirm" = "Getan";
+"success_restore" = "Wiederherstellung war erfolgreich.";
+"fail_restore" = "Wiederherstellung fehlgeschlagen.";

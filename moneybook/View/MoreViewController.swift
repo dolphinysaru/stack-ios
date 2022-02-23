@@ -9,9 +9,11 @@ import UIKit
 import MessageUI
 import StoreKit
 import Toast_Swift
+import StoreKit
 
 class MoreViewController: BaseViewController {
     enum Section: Int, CaseIterable {
+        case iap
         case featured
         case review
         case category
@@ -20,6 +22,8 @@ class MoreViewController: BaseViewController {
         
         var title: String? {
             switch self {
+            case .iap:
+                return "buy".localized()
             case .featured:
                 return "featured".localized()
             case .review:
@@ -36,6 +40,7 @@ class MoreViewController: BaseViewController {
     
     @IBOutlet weak var tableView: UITableView!
     var featuredApp = [FeaturedApp]()
+    var proProduct: SKProduct?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +61,16 @@ class MoreViewController: BaseViewController {
             self?.featuredApp = featured
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
+            }
+        }
+        
+        InAppProducts.store.requestProducts { [weak self] success, products in
+            guard let self = self else { return }
+            guard success else { return }
+            guard let product = products?.first else { return }
+            self.proProduct = product
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
             }
         }
         
@@ -128,6 +143,51 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
         
         let s = Section(rawValue: indexPath.section)
         switch s {
+        case .iap:
+            if indexPath.row == 0 {
+                guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+                
+                InAppProducts.store.requestProducts(
+                    { success, products in
+                        guard success else { return }
+                        guard let product = products?.first else { return }
+                        InAppProducts.store.buyProduct(product) { [weak self] success, message in
+                            guard let self = self else { return }
+                            let title: String
+                            if success {
+                                title = "already_iap_buy".localized()
+                            } else {
+                                title = "failed_iap_buy".localized()
+                            }
+                            
+                            let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+                            let ok = UIAlertAction(title: "common_confirm".localized(), style: .default, handler: nil)
+                            alert.addAction(ok)
+                            self.present(alert, animated: true, completion: nil)
+                            
+                            self.tableView.reloadData()
+                        }
+                    }
+                )
+            } else {
+                InAppProducts.store.restorePurchases { [weak self] success, message in
+                    guard let self = self else { return }
+                    let title: String
+                    if success {
+                        title = "success_restore".localized()
+                    } else {
+                        title = "fail_restore".localized()
+                    }
+                    
+                    let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+                    let ok = UIAlertAction(title: "common_confirm".localized(), style: .default, handler: nil)
+                    alert.addAction(ok)
+                    self.present(alert, animated: true, completion: nil)
+                    
+                    self.tableView.reloadData()
+                }
+            }
+            
         case .featured:
             break
             
@@ -178,6 +238,8 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let s = Section(rawValue: section)
         switch s {
+        case .iap:
+            return InAppProducts.store.isProductPurchased(InAppProducts.product) ? 1 : 2
         case .featured:
             return featuredApp.count
         case .review:
@@ -196,6 +258,21 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let s = Section(rawValue: indexPath.section)
         switch s {
+        case .iap:
+            let cell = tableView.dequeueReusableCell(MoreTableViewCell.self, forIndexPath: indexPath)
+            if indexPath.row == 0 {
+                if InAppProducts.store.isProductPurchased(InAppProducts.product) {
+                    cell.textLabel?.text = "already_iap_buy".localized()
+                } else {
+                    cell.textLabel?.text = "buy".localized() + ", " + (proProduct?.localizedPrice ?? "") + "/" + "month".localized()
+                }
+                
+            } else {
+                cell.textLabel?.text = "restore".localized()
+            }
+            
+            return cell
+            
         case .featured:
             let app = featuredApp[indexPath.row]
             let cell = tableView.dequeueReusableCell(withIdentifier: "FeaturedTableViewCell", for: indexPath) as! FeaturedTableViewCell
@@ -257,8 +334,34 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let view = HeaderView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 35))
-        view.updateUI(title: Section(rawValue: section)?.title ?? "")
+        let s = Section(rawValue: section)
+        if s == .iap {
+            view.updateUI(title: (proProduct?.localizedTitle ?? "") + ", " + (proProduct?.localizedDescription ?? ""))
+        } else {
+            view.updateUI(title: Section(rawValue: section)?.title ?? "")
+        }
+        
         return view
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        let s = Section(rawValue: section)
+        if s == .iap {
+            return 35
+        }
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let view = HeaderView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 35))
+        let s = Section(rawValue: section)
+        if s == .iap {
+            let title = String(format: "proversion_footer".localized(), (proProduct?.localizedPrice ?? ""))
+            view.updateUI(title: title)
+            return view
+        } else {
+            return nil
+        }
     }
 }
 

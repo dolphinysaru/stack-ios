@@ -18,4 +18,5 @@ target 'moneybook' do
    pod 'Toast-Swift'
    pod 'Firebase/RemoteConfig'
    pod 'Kingfisher'
+   pod 'SwiftyStoreKit'
 end

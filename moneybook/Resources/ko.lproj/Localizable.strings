@@ -103,3 +103,12 @@
 "monthly_calendar" = "월";
 "yearly_calendar" = "년";
 "add" = "추가하기";
+"buy" = "구매하기";
+"restore" = "복원하기";
+"month" = "월";
+"proversion_footer" = "매월 %@의 금액이 결제됩니다.";
+"already_iap_buy" = "구매가 완료되었습니다.";
+"failed_iap_buy" = "구매가 실패하였습니다. 다시 시도해 주세요.";
+"common_confirm" = "확인";
+"success_restore" = "복원에 성공하였습니다.";
+"fail_restore" = "복원에 실패하였습니다.";

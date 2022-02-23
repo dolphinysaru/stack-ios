@@ -103,3 +103,12 @@
 "monthly_calendar" = "月刊";
 "yearly_calendar" = "每年";
 "add" = "添加";
+"buy" = "购买";
+"restore" = "恢复";
+"month" = "月";
+"proversion_footer" = "您将被收取每月 %@ 的费用。";
+"already_iap_buy" = "您的购买已完成。";
+"failed_iap_buy" = "购买失败。 请再试一次。";
+"common_confirm" = "完毕";
+"success_restore" = "恢复成功。";
+"fail_restore" = "还原失败。";

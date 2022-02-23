@@ -54,7 +54,7 @@ class PlanViewController: BaseViewController {
         
         gaId = ga_banner_id_home
     }
-    
+        
     func setupEmptyView() {
         let image = UIImage.imageWithEmoji(emoji: "🐷", fontSize: 200, size: CGSize(width: 160, height: 160))
         emptyImageView.image = image

@@ -126,6 +126,7 @@ PODS:
   - nanopb/encode (2.30908.0)
   - PromisesObjC (2.0.0)
   - SnapKit (5.0.1)
+  - SwiftyStoreKit (0.16.1)
   - Toast-Swift (5.0.1)
 
 DEPENDENCIES:
@@ -138,6 +139,7 @@ DEPENDENCIES:
   - Kingfisher
   - Localize-Swift
   - SnapKit
+  - SwiftyStoreKit
   - Toast-Swift
 
 SPEC REPOS:
@@ -162,6 +164,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - SnapKit
+    - SwiftyStoreKit
     - Toast-Swift
 
 SPEC CHECKSUMS:
@@ -185,8 +188,9 @@ SPEC CHECKSUMS:
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  SwiftyStoreKit: 6b9c08810269f030586dac1fae8e75871a82e84a
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
 
-PODFILE CHECKSUM: f1c477291f6160667ff5823f3bdffe2a4b42d05e
+PODFILE CHECKSUM: a971629c29a181c16a815bf2762fa549b8e64b58
 
 COCOAPODS: 1.11.2
