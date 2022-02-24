@@ -10,6 +10,7 @@ import MessageUI
 import StoreKit
 import Toast_Swift
 import StoreKit
+import SafariServices
 
 class MoreViewController: BaseViewController {
     enum Section: Int, CaseIterable {
@@ -138,6 +139,12 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
         self.present(viewController, animated: true, completion: nil)
     }
     
+    func openSafari(_ url: String) {
+        guard let url = URL(string: url) else { return }
+        let safariViewController = SFSafariViewController(url: url)
+        present(safariViewController, animated: true, completion: nil)
+     }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -169,7 +176,7 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
                         }
                     }
                 )
-            } else {
+            } else if indexPath.row == 1 && !InAppProducts.store.isProductPurchased(InAppProducts.product) {
                 InAppProducts.store.restorePurchases { [weak self] success, message in
                     guard let self = self else { return }
                     let title: String
@@ -186,6 +193,24 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
                     
                     self.tableView.reloadData()
                 }
+            } else {
+                let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+                
+                let term = UIAlertAction(title: "terms_of_use".localized(), style: .default) { [weak self] _ in
+                    self?.openSafari("https://flower-cough-b87.notion.site/Terms-of-Use-c0b4c8935d004c9b8764fba4ca23271e")
+                }
+                
+                alert.addAction(term)
+                
+                let privacy = UIAlertAction(title: "privacy_policy".localized(), style: .default) { [weak self] _ in
+                    self?.openSafari("https://flower-cough-b87.notion.site/Privacy-Policy-fc135c7efaaf4f6f8fccdda256de81cf")
+                }
+                alert.addAction(privacy)
+                
+                let cancel = UIAlertAction(title: "cancel".localized(), style: .cancel, handler: nil)
+                alert.addAction(cancel)
+                
+                self.present(alert, animated: true, completion: nil)
             }
             
         case .featured:
@@ -239,7 +264,7 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
         let s = Section(rawValue: section)
         switch s {
         case .iap:
-            return InAppProducts.store.isProductPurchased(InAppProducts.product) ? 1 : 2
+            return InAppProducts.store.isProductPurchased(InAppProducts.product) ? 2 : 3
         case .featured:
             return featuredApp.count
         case .review:
@@ -266,9 +291,10 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
                 } else {
                     cell.textLabel?.text = "buy".localized() + ", " + (proProduct?.localizedPrice ?? "") + "/" + "month".localized()
                 }
-                
-            } else {
+            } else if indexPath.row == 1 && !InAppProducts.store.isProductPurchased(InAppProducts.product) {
                 cell.textLabel?.text = "restore".localized()
+            } else {
+                cell.textLabel?.text = "term_privacy_policy".localized()
             }
             
             return cell

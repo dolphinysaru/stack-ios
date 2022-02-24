@@ -112,3 +112,6 @@
 "common_confirm" = "Getan";
 "success_restore" = "Wiederherstellung war erfolgreich.";
 "fail_restore" = "Wiederherstellung fehlgeschlagen.";
+"term_privacy_policy" = "Nutzungsbedingungen und Datenschutzrichtlinie";
+"terms_of_use" = "Nutzungsbedingungen";
+"privacy_policy" = "Datenschutz-Bestimmungen";

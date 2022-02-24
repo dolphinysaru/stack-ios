@@ -112,3 +112,6 @@
 "common_confirm" = "확인";
 "success_restore" = "복원에 성공하였습니다.";
 "fail_restore" = "복원에 실패하였습니다.";
+"term_privacy_policy" = "이용약관 및 개인정보 보호정책";
+"terms_of_use" = "이용약관";
+"privacy_policy" = "개인정보 보호정책";

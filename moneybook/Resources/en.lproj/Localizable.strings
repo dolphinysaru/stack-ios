@@ -112,3 +112,6 @@
 "common_confirm" = "Done";
 "success_restore" = "Restoration was successful.";
 "fail_restore" = "Restore failed.";
+"term_privacy_policy" = "Terms of Use and Privacy Policy";
+"terms_of_use" = "Terms of Use";
+"privacy_policy" = "Privacy Policy";
