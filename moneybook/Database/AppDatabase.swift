@@ -64,8 +64,57 @@ extension AppDatabase {
 extension AppDatabase {
     /// The database for the application
     static let shared = makeShared()
+    static let old = oldShared()
+    
+    internal static func migrateAppGroup() throws {
+        let categories = try AppDatabase.old.loadAllCategories()
+        try categories.forEach {
+            var category = $0
+            try AppDatabase.shared.saveCategory(&category)
+        }
+        
+        let items = try AppDatabase.old.loadAllItems()
+        try items.forEach {
+            var item = $0
+            try AppDatabase.shared.saveItem(&item)
+        }
+    }
     
     private static func makeShared() -> AppDatabase {
+        do {
+            // Create a folder for storing the SQLite database, as well as
+            // the various temporary files created during normal database
+            // operations (https://sqlite.org/tempfiles.html).
+            let fileManager = FileManager()
+            let folderURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)!
+//                .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+//                .appendingPathComponent("database", isDirectory: true)
+            try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            
+            // Connect to a database on disk
+            // See https://github.com/groue/GRDB.swift/blob/master/README.md#database-connections
+            let dbURL = folderURL.appendingPathComponent("db.sqlite")
+            let dbPool = try DatabasePool(path: dbURL.path)
+            
+            // Create the AppDatabase
+            let appDatabase = try AppDatabase(dbPool)
+                        
+            return appDatabase
+        } catch {
+            // Replace this implementation with code to handle the error appropriately.
+            // fatalError() causes the application to generate a crash log and terminate.
+            //
+            // Typical reasons for an error here include:
+            // * The parent directory cannot be created, or disallows writing.
+            // * The database is not accessible, due to permissions or data protection when the device is locked.
+            // * The device is out of space.
+            // * The database could not be migrated to its latest schema version.
+            // Check the error message to determine what the actual problem was.
+            fatalError("Unresolved error \(error)")
+        }
+    }
+    
+    private static func oldShared() -> AppDatabase {
         do {
             // Create a folder for storing the SQLite database, as well as
             // the various temporary files created during normal database

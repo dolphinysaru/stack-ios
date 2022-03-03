@@ -12,6 +12,7 @@ import GoogleMobileAds
 import AppTrackingTransparency
 import AdSupport
 import SwiftyStoreKit
+import WidgetKit
 
 let isEnabledAd = true
 
@@ -57,8 +58,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         GADMobileAds.sharedInstance().start(completionHandler: nil)
         
-        try? AppDatabase.shared.initialCategory()
-        CurrencyManager.setupCurrencyIfNeeded()
+        let isSetCategory = UserDefaults.standard.bool(forKey: "is_initial_category")
+        if !UserDefaults.standard.bool(forKey: "is_migrate_appgroup_1") && isSetCategory {
+            try? AppDatabase.migrateAppGroup()
+            CurrencyManager.migrate()
+            Budget.migrate()
+            
+            WidgetCenter.shared.reloadAllTimelines()
+        } else {
+            try? AppDatabase.shared.initialCategory()
+            CurrencyManager.setupCurrencyIfNeeded()
+        }
+        
+        UserDefaults.standard.set(true, forKey: "is_migrate_appgroup_1")
         initViewControllers()
         
         return true
@@ -155,6 +167,7 @@ extension AppDelegate {
     
     func tryToPresentAd() {
         guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+        guard isEnabledAd else { return }
         
         if let ad = appOpenAd {
             if let vc = window?.rootViewController {

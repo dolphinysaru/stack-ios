@@ -18,6 +18,7 @@
 "budget_menu" = "预算";
 "budget_textfield_placeholder" = "请输入您的预算。";
 "common_save" = "保存";
+"widget_input_price_title" = "添加支出/收入";
 "input_price_title" = "添加支出/收入";
 "add_button_title" = "添加支出/收入";
 "expend_segmented_title" = "支出";
@@ -115,3 +116,4 @@
 "term_privacy_policy" = "使用条款和隐私政策";
 "terms_of_use" = "使用条款";
 "privacy_policy" = "隐私政策";
+"widget_description" = "添加小部件以添加支出/收入。";

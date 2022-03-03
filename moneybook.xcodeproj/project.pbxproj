@@ -117,7 +117,24 @@
 		19B2ACF1278DC1FB005B5472 /* ItemMemoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */; };
 		19B92E3527C4C46300E1D1F9 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */; };
 		19B92E3627C4C46300E1D1F9 /* InAppProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */; };
+		19B9A08627D04F700001A69B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19B9A08527D04F700001A69B /* WidgetKit.framework */; };
+		19B9A08827D04F700001A69B /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19B9A08727D04F700001A69B /* SwiftUI.framework */; };
+		19B9A08B27D04F700001A69B /* ShortcutWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B9A08A27D04F700001A69B /* ShortcutWidget.swift */; };
+		19B9A08D27D04F720001A69B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19B9A08C27D04F720001A69B /* Assets.xcassets */; };
+		19B9A09127D04F720001A69B /* ShortcutWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 19B9A08427D04F700001A69B /* ShortcutWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		19B9A09727D059CD0001A69B /* Budget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1994F41227833DE5003DFBCE /* Budget.swift */; };
+		19B9A09827D059D80001A69B /* UserDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DD3278144040016F543 /* UserDefault.swift */; };
+		19B9A09927D059E00001A69B /* Date+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DE027817D3C0016F543 /* Date+.swift */; };
+		19B9A09A27D059EC0001A69B /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2ACCA278C213B005B5472 /* NumberFormatter.swift */; };
+		19B9A09B27D059F30001A69B /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DC9278084930016F543 /* Item.swift */; };
+		19B9A09C27D059FD0001A69B /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DC5278082B60016F543 /* AppDatabase.swift */; };
+		19B9A09D27D05A010001A69B /* AppDatebase+Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DEB27818D080016F543 /* AppDatebase+Category.swift */; };
+		19B9A09E27D05A040001A69B /* AppDatabase+Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1994F410278338A8003DFBCE /* AppDatabase+Item.swift */; };
+		19B9A09F27D05B170001A69B /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DC7278083B40016F543 /* Category.swift */; };
+		19B9A0A227D081DC0001A69B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 19B00DC0278079ED0016F543 /* Localizable.strings */; };
+		19B9A0A327D088DE0001A69B /* CurrencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B00DDE27817C430016F543 /* CurrencyManager.swift */; };
 		509D3B3A123B5DDBC1C6B3B3 /* Pods_moneybook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4DCBC28168995E233F887F7 /* Pods_moneybook.framework */; };
+		D9F01F626C6CAEEDDE0F3C1B /* Pods_ShortcutWidgetExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D5A1AEF8EC2E2D5E14FA3B0 /* Pods_ShortcutWidgetExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,10 +152,32 @@
 			remoteGlobalIDString = 19B00D76278075D10016F543;
 			remoteInfo = moneybook;
 		};
+		19B9A08F27D04F720001A69B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 19B00D6F278075D10016F543 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 19B9A08327D04F700001A69B;
+			remoteInfo = ShortcutWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		19B9A09227D04F720001A69B /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				19B9A09127D04F720001A69B /* ShortcutWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0B0D61F1AFC02A4A7B644527 /* Pods-moneybook.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moneybook.debug.xcconfig"; path = "Target Support Files/Pods-moneybook/Pods-moneybook.debug.xcconfig"; sourceTree = "<group>"; };
+		0D5A1AEF8EC2E2D5E14FA3B0 /* Pods_ShortcutWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShortcutWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		194060BC279EE2720028F4F1 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		194060BE279EE9F80028F4F1 /* CategoryAddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryAddViewController.swift; sourceTree = "<group>"; };
 		194060BF279EE9F80028F4F1 /* CategoryAddViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryAddViewController.xib; sourceTree = "<group>"; };
@@ -261,6 +300,16 @@
 		19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemMemoTableViewCell.xib; sourceTree = "<group>"; };
 		19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAppProducts.swift; sourceTree = "<group>"; };
+		19B9A08427D04F700001A69B /* ShortcutWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShortcutWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		19B9A08527D04F700001A69B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		19B9A08727D04F700001A69B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		19B9A08A27D04F700001A69B /* ShortcutWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutWidget.swift; sourceTree = "<group>"; };
+		19B9A08C27D04F720001A69B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		19B9A08E27D04F720001A69B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		19B9A0A027D074200001A69B /* moneybook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = moneybook.entitlements; sourceTree = "<group>"; };
+		19B9A0A127D0742B0001A69B /* ShortcutWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShortcutWidgetExtension.entitlements; sourceTree = "<group>"; };
+		1F950E5509E6411B5E02A100 /* Pods-ShortcutWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShortcutWidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-ShortcutWidgetExtension/Pods-ShortcutWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		567051CA60BF9DB6F6817C06 /* Pods-ShortcutWidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShortcutWidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-ShortcutWidgetExtension/Pods-ShortcutWidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		94CDF4197858CB10DB74DDD4 /* Pods-moneybook.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moneybook.release.xcconfig"; path = "Target Support Files/Pods-moneybook/Pods-moneybook.release.xcconfig"; sourceTree = "<group>"; };
 		C4DCBC28168995E233F887F7 /* Pods_moneybook.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_moneybook.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -285,6 +334,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		19B9A08127D04F700001A69B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19B9A08827D04F700001A69B /* SwiftUI.framework in Frameworks */,
+				19B9A08627D04F700001A69B /* WidgetKit.framework in Frameworks */,
+				D9F01F626C6CAEEDDE0F3C1B /* Pods_ShortcutWidgetExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,9 +419,11 @@
 		19B00D6E278075D10016F543 = {
 			isa = PBXGroup;
 			children = (
+				19B9A0A127D0742B0001A69B /* ShortcutWidgetExtension.entitlements */,
 				19B00D79278075D10016F543 /* moneybook */,
 				19B00D90278075D40016F543 /* moneybookTests */,
 				19B00D9A278075D40016F543 /* moneybookUITests */,
+				19B9A08927D04F700001A69B /* ShortcutWidget */,
 				19B00D78278075D10016F543 /* Products */,
 				439654503FB41385EF779006 /* Pods */,
 				F4175E62F7C6FD929881DF42 /* Frameworks */,
@@ -375,6 +436,7 @@
 				19B00D77278075D10016F543 /* moneybook.app */,
 				19B00D8D278075D40016F543 /* moneybookTests.xctest */,
 				19B00D97278075D40016F543 /* moneybookUITests.xctest */,
+				19B9A08427D04F700001A69B /* ShortcutWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -382,6 +444,7 @@
 		19B00D79278075D10016F543 /* moneybook */ = {
 			isa = PBXGroup;
 			children = (
+				19B9A0A027D074200001A69B /* moneybook.entitlements */,
 				19B92E3227C4C46300E1D1F9 /* IAP */,
 				194060D8279FFFF00028F4F1 /* GoogleAd */,
 				194060CB279FF7FD0028F4F1 /* Featured */,
@@ -573,11 +636,23 @@
 			path = IAP;
 			sourceTree = "<group>";
 		};
+		19B9A08927D04F700001A69B /* ShortcutWidget */ = {
+			isa = PBXGroup;
+			children = (
+				19B9A08A27D04F700001A69B /* ShortcutWidget.swift */,
+				19B9A08C27D04F720001A69B /* Assets.xcassets */,
+				19B9A08E27D04F720001A69B /* Info.plist */,
+			);
+			path = ShortcutWidget;
+			sourceTree = "<group>";
+		};
 		439654503FB41385EF779006 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
 				0B0D61F1AFC02A4A7B644527 /* Pods-moneybook.debug.xcconfig */,
 				94CDF4197858CB10DB74DDD4 /* Pods-moneybook.release.xcconfig */,
+				1F950E5509E6411B5E02A100 /* Pods-ShortcutWidgetExtension.debug.xcconfig */,
+				567051CA60BF9DB6F6817C06 /* Pods-ShortcutWidgetExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -586,6 +661,9 @@
 			isa = PBXGroup;
 			children = (
 				C4DCBC28168995E233F887F7 /* Pods_moneybook.framework */,
+				19B9A08527D04F700001A69B /* WidgetKit.framework */,
+				19B9A08727D04F700001A69B /* SwiftUI.framework */,
+				0D5A1AEF8EC2E2D5E14FA3B0 /* Pods_ShortcutWidgetExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -602,10 +680,12 @@
 				19B00D74278075D10016F543 /* Frameworks */,
 				19B00D75278075D10016F543 /* Resources */,
 				C7EBD985B156665DE3147DA4 /* [CP] Embed Pods Frameworks */,
+				19B9A09227D04F720001A69B /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				19B9A09027D04F720001A69B /* PBXTargetDependency */,
 			);
 			name = moneybook;
 			productName = moneybook;
@@ -648,6 +728,24 @@
 			productReference = 19B00D97278075D40016F543 /* moneybookUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		19B9A08327D04F700001A69B /* ShortcutWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 19B9A09527D04F720001A69B /* Build configuration list for PBXNativeTarget "ShortcutWidgetExtension" */;
+			buildPhases = (
+				1DA0BFBE97E447E2E7EBA1BC /* [CP] Check Pods Manifest.lock */,
+				19B9A08027D04F700001A69B /* Sources */,
+				19B9A08127D04F700001A69B /* Frameworks */,
+				19B9A08227D04F700001A69B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShortcutWidgetExtension;
+			productName = ShortcutWidgetExtension;
+			productReference = 19B9A08427D04F700001A69B /* ShortcutWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -655,7 +753,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1310;
+				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1310;
 				TargetAttributes = {
 					19B00D76278075D10016F543 = {
@@ -668,6 +766,9 @@
 					19B00D96278075D40016F543 = {
 						CreatedOnToolsVersion = 13.1;
 						TestTargetID = 19B00D76278075D10016F543;
+					};
+					19B9A08327D04F700001A69B = {
+						CreatedOnToolsVersion = 13.2.1;
 					};
 				};
 			};
@@ -691,6 +792,7 @@
 				19B00D76278075D10016F543 /* moneybook */,
 				19B00D8C278075D40016F543 /* moneybookTests */,
 				19B00D96278075D40016F543 /* moneybookUITests */,
+				19B9A08327D04F700001A69B /* ShortcutWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -755,9 +857,40 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		19B9A08227D04F700001A69B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19B9A08D27D04F720001A69B /* Assets.xcassets in Resources */,
+				19B9A0A227D081DC0001A69B /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1DA0BFBE97E447E2E7EBA1BC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ShortcutWidgetExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		C7EBD985B156665DE3147DA4 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -893,6 +1026,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		19B9A08027D04F700001A69B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19B9A09D27D05A010001A69B /* AppDatebase+Category.swift in Sources */,
+				19B9A09F27D05B170001A69B /* Category.swift in Sources */,
+				19B9A09727D059CD0001A69B /* Budget.swift in Sources */,
+				19B9A09A27D059EC0001A69B /* NumberFormatter.swift in Sources */,
+				19B9A08B27D04F700001A69B /* ShortcutWidget.swift in Sources */,
+				19B9A09C27D059FD0001A69B /* AppDatabase.swift in Sources */,
+				19B9A09827D059D80001A69B /* UserDefault.swift in Sources */,
+				19B9A0A327D088DE0001A69B /* CurrencyManager.swift in Sources */,
+				19B9A09B27D059F30001A69B /* Item.swift in Sources */,
+				19B9A09927D059E00001A69B /* Date+.swift in Sources */,
+				19B9A09E27D05A040001A69B /* AppDatabase+Item.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -905,6 +1056,11 @@
 			isa = PBXTargetDependency;
 			target = 19B00D76278075D10016F543 /* moneybook */;
 			targetProxy = 19B00D98278075D40016F543 /* PBXContainerItemProxy */;
+		};
+		19B9A09027D04F720001A69B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 19B9A08327D04F700001A69B /* ShortcutWidgetExtension */;
+			targetProxy = 19B9A08F27D04F720001A69B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1074,10 +1230,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0B0D61F1AFC02A4A7B644527 /* Pods-moneybook.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = moneybook/moneybook.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = KA5983EXM4;
 				ENABLE_BITCODE = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1093,7 +1251,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1106,10 +1264,12 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 94CDF4197858CB10DB74DDD4 /* Pods-moneybook.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = moneybook/moneybook.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = KA5983EXM4;
 				ENABLE_BITCODE = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1125,7 +1285,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1230,6 +1390,66 @@
 			};
 			name = Release;
 		};
+		19B9A09327D04F720001A69B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1F950E5509E6411B5E02A100 /* Pods-ShortcutWidgetExtension.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ShortcutWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KA5983EXM4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShortcutWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ShortcutWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack.ShortcutWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		19B9A09427D04F720001A69B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 567051CA60BF9DB6F6817C06 /* Pods-ShortcutWidgetExtension.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ShortcutWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KA5983EXM4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShortcutWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ShortcutWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack.ShortcutWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1265,6 +1485,15 @@
 			buildConfigurations = (
 				19B00DA8278075D40016F543 /* Debug */,
 				19B00DA9278075D40016F543 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		19B9A09527D04F720001A69B /* Build configuration list for PBXNativeTarget "ShortcutWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				19B9A09327D04F720001A69B /* Debug */,
+				19B9A09427D04F720001A69B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

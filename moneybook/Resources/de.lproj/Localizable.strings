@@ -18,6 +18,7 @@
 "budget_menu" = "Budget";
 "budget_textfield_placeholder" = "Bitte geben Sie Ihr Budget ein.";
 "common_save" = "Speichern";
+"widget_input_price_title" = "Addieren";
 "input_price_title" = "Fügen Sie Ausgaben/Einnahmen hinzu";
 "add_button_title" = "Fügen Sie Ausgaben/Einnahmen hinzu";
 "expend_segmented_title" = "Ausgaben";
@@ -115,3 +116,4 @@
 "term_privacy_policy" = "Nutzungsbedingungen und Datenschutzrichtlinie";
 "terms_of_use" = "Nutzungsbedingungen";
 "privacy_policy" = "Datenschutz-Bestimmungen";
+"widget_description" = "Fügen Sie ein Widget hinzu, um Ausgaben/Einnahmen hinzuzufügen.";

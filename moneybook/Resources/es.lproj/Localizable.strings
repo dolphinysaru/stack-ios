@@ -18,6 +18,7 @@
 "budget_menu" = "Presupuesto";
 "budget_textfield_placeholder" = "Por favor ingrese su presupuesto.";
 "common_save" = "Ahorrar";
+"widget_input_price_title" = "Agregar";
 "input_price_title" = "Agregar gastos/ingresos";
 "add_button_title" = "Agregar gastos/ingresos";
 "expend_segmented_title" = "Gasto";
@@ -115,3 +116,4 @@
 "term_privacy_policy" = "Términos de uso y política de privacidad";
 "terms_of_use" = "Condiciones de uso";
 "privacy_policy" = "Política de privacidad";
+"widget_description" = "Agregue un widget para agregar gastos/ingresos.";

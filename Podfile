@@ -20,3 +20,9 @@ target 'moneybook' do
    pod 'Kingfisher'
    pod 'SwiftyStoreKit'
 end
+
+target 'ShortcutWidgetExtension' do
+  use_frameworks!
+   pod 'GRDB.swift'
+   pod 'Localize-Swift'
+end

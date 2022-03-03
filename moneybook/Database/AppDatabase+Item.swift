@@ -10,7 +10,7 @@ import GRDB
 
 extension AppDatabase {
     func loadAllItems() throws -> [Item] {
-        let items = try? AppDatabase.shared.databaseReader.read { db in
+        let items = try? databaseReader.read { db in
             try Item.fetchAll(db)
         }
         
@@ -24,13 +24,13 @@ extension AppDatabase {
     }
     
     func loadItem(_ id: Int64) throws -> Item? {
-        return try? AppDatabase.shared.databaseReader.read { db in
+        return try? databaseReader.read { db in
             try Item.fetchOne(db, sql: "SELECT * FROM Item where id = :id", arguments: ["id": id])
         }
     }
     
     func loadItems(dateInt: Int, types: [ItemType]) throws -> [Item] {
-        let items: [Item]? = try? AppDatabase.shared.databaseReader.read { db in
+        let items: [Item]? = try? databaseReader.read { db in
             try Item.fetchAll(db, sql: "SELECT * FROM Item WHERE dateInt = :dateInt", arguments: ["dateInt": dateInt])
         }
                 
@@ -41,7 +41,7 @@ extension AppDatabase {
     
     
     func loadItems(fromDateInt: Int, toDateInt: Int, sign: String = "<=", types: [ItemType]) throws -> [Item] {
-        let items: [Item]? = try? AppDatabase.shared.databaseReader.read { db in
+        let items: [Item]? = try? databaseReader.read { db in
             try Item.fetchAll(db, sql: "SELECT * FROM Item WHERE dateInt >= '\(fromDateInt)' AND dateInt \(sign) '\(toDateInt)'")
         }
                 
@@ -51,7 +51,7 @@ extension AppDatabase {
     }
     
     func loadItems(fromDateInt: Int, types: [ItemType]) throws -> [Item] {
-        let items: [Item]? = try? AppDatabase.shared.databaseReader.read { db in
+        let items: [Item]? = try? databaseReader.read { db in
             try Item.fetchAll(db, sql: "SELECT * FROM Item where dateInt >= '\(fromDateInt)'")
         }
                 

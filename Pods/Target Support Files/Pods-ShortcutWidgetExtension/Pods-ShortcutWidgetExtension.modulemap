@@ -1,0 +1,6 @@
+framework module Pods_ShortcutWidgetExtension {
+  umbrella header "Pods-ShortcutWidgetExtension-umbrella.h"
+
+  export *
+  module * { export * }
+}

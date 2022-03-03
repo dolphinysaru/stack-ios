@@ -100,6 +100,7 @@ class ItemDetailViewController: BaseViewController {
         let ok = UIAlertAction(title: "delete".localized(), style: .destructive) { [weak self] _ in
             guard let self = self else { return }
             try? AppDatabase.shared.removeItem(self.item)
+            Budget.syncAppGroupData()
             self.navigationController?.popViewController(animated: true)
         }
         

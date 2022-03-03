@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import WidgetKit
 
 class InputMemoViewController: BaseViewController {
     @IBOutlet weak var textView: UITextView!
@@ -51,6 +52,7 @@ class InputMemoViewController: BaseViewController {
             AddItemManager.shared.save()
         }
         
+        Budget.syncAppGroupData()
         
         guard let nc = navigationController else { return }
         for (index, vc) in nc.viewControllers.enumerated() where vc is InputPriceViewController {

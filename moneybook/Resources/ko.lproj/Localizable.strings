@@ -18,6 +18,7 @@
 "budget_menu" = "예산";
 "budget_textfield_placeholder" = "예산을 입력하세요.";
 "common_save" = "저장";
+"widget_input_price_title" = "지출/수입 추가";
 "input_price_title" = "지출/수입 추가";
 "add_button_title" = "지출/수입 추가하기";
 "expend_segmented_title" = "지출";
@@ -115,3 +116,4 @@
 "term_privacy_policy" = "이용약관 및 개인정보 보호정책";
 "terms_of_use" = "이용약관";
 "privacy_policy" = "개인정보 보호정책";
+"widget_description" = "위젯을 추가하여 지출/수입을 추가해보세요.";

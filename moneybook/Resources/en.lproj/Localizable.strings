@@ -18,6 +18,7 @@
 "budget_menu" = "Budget";
 "budget_textfield_placeholder" = "Please enter your budget.";
 "common_save" = "Save";
+"widget_input_price_title" = "Add";
 "input_price_title" = "Add Expenditure/Revenue";
 "add_button_title" = "Add Expenditure/Revenue";
 "expend_segmented_title" = "Expenditure";
@@ -115,3 +116,4 @@
 "term_privacy_policy" = "Terms of Use and Privacy Policy";
 "terms_of_use" = "Terms of Use";
 "privacy_policy" = "Privacy Policy";
+"widget_description" = "Add a widget to add Expenditure/Revenue.";

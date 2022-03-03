@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Localize_Swift
+import WidgetKit
 
 struct Budget {
     enum CycleTerm: Int {
@@ -52,33 +54,53 @@ struct Budget {
     }
     
     func save() {
-        UserDefaults.standard.set(cycleTerm.rawValue, forKey: UserDefault.budget_cycle_term)
-        UserDefaults.standard.set(startDay, forKey: UserDefault.budget_cycle_start_day)
-        UserDefaults.standard.set(dayOfTheWeek.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
-        UserDefaults.standard.set(price, forKey: UserDefault.budget_price)
-        UserDefaults.standard.set(true, forKey: UserDefault.budget_is_on)
+        UserDefaults(suiteName: appGroupName)?.set(cycleTerm.rawValue, forKey: UserDefault.budget_cycle_term)
+        UserDefaults(suiteName: appGroupName)?.set(startDay, forKey: UserDefault.budget_cycle_start_day)
+        UserDefaults(suiteName: appGroupName)?.set(dayOfTheWeek.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
+        UserDefaults(suiteName: appGroupName)?.set(price, forKey: UserDefault.budget_price)
+        UserDefaults(suiteName: appGroupName)?.set(true, forKey: UserDefault.budget_is_on)
+        
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
+    static func migrate() {
+        let termRawValue = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_term)
+        let startDay = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_start_day)
+        let dayOfWeekRawValue = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_start_day_of_week)
+        let price = UserDefaults.standard.double(forKey: UserDefault.budget_price)
+        
+        UserDefaults(suiteName: appGroupName)?.set(termRawValue, forKey: UserDefault.budget_cycle_term)
+        UserDefaults(suiteName: appGroupName)?.set(startDay, forKey: UserDefault.budget_cycle_start_day)
+        UserDefaults(suiteName: appGroupName)?.set(dayOfWeekRawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
+        UserDefaults(suiteName: appGroupName)?.set(price, forKey: UserDefault.budget_price)
+        UserDefaults(suiteName: appGroupName)?.set(true, forKey: UserDefault.budget_is_on)
     }
     
     static func reset() {
-        UserDefaults.standard.set(CycleTerm.monthly.rawValue, forKey: UserDefault.budget_cycle_term)
-        UserDefaults.standard.set(1, forKey: UserDefault.budget_cycle_start_day)
-        UserDefaults.standard.set(DayOfTheWeek.monday.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
-        UserDefaults.standard.set(0, forKey: UserDefault.budget_price)
-        UserDefaults.standard.set(false, forKey: UserDefault.budget_is_on)
+        UserDefaults(suiteName: appGroupName)?.set(CycleTerm.monthly.rawValue, forKey: UserDefault.budget_cycle_term)
+        UserDefaults(suiteName: appGroupName)?.set(1, forKey: UserDefault.budget_cycle_start_day)
+        UserDefaults(suiteName: appGroupName)?.set(DayOfTheWeek.monday.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
+        UserDefaults(suiteName: appGroupName)?.set(0, forKey: UserDefault.budget_price)
+        UserDefaults(suiteName: appGroupName)?.set(false, forKey: UserDefault.budget_is_on)
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     static func isSavedBudget() -> Bool {
-        UserDefaults.standard.bool(forKey: UserDefault.budget_is_on)
+        UserDefaults(suiteName: appGroupName)!.bool(forKey: UserDefault.budget_is_on)
+    }
+    
+    static func syncAppGroupData() {
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     static func load() -> Budget {
-        let termRawValue = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_term)
+        let termRawValue = UserDefaults(suiteName: appGroupName)!.integer(forKey: UserDefault.budget_cycle_term)
         let cycleTerm = Budget.CycleTerm(rawValue: termRawValue) ?? .monthly
         
-        let startDay = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_start_day)
-        let dayOfWeekRawValue = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_start_day_of_week)
+        let startDay = UserDefaults(suiteName: appGroupName)!.integer(forKey: UserDefault.budget_cycle_start_day)
+        let dayOfWeekRawValue = UserDefaults(suiteName: appGroupName)!.integer(forKey: UserDefault.budget_cycle_start_day_of_week)
         let dayOfWeek = DayOfTheWeek(rawValue: dayOfWeekRawValue) ?? .monday
-        let price = UserDefaults.standard.double(forKey: UserDefault.budget_price)
+        let price = UserDefaults(suiteName: appGroupName)!.double(forKey: UserDefault.budget_price)
         
         return Budget(cycleTerm: cycleTerm, price: price, dayOfTheWeek: dayOfWeek, startDay: startDay)
     }

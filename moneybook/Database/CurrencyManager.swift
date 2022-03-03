@@ -19,12 +19,20 @@ extension Currency: Equatable, Hashable {
 }
 
 struct CurrencyManager {
+    static func migrate() {
+        let symbol = UserDefaults.standard.string(forKey: UserDefault.currency_symbol)
+        UserDefaults(suiteName: appGroupName)?.set(symbol, forKey: UserDefault.currency_symbol)
+        
+        let code = UserDefaults.standard.string(forKey: UserDefault.currency_code)
+        UserDefaults(suiteName: appGroupName)?.set(code, forKey: UserDefault.currency_code)
+    }
+    
     static var currencySymbol: String {
-        return UserDefaults.standard.string(forKey: UserDefault.currency_symbol) ?? ""
+        return UserDefaults(suiteName: appGroupName)!.string(forKey: UserDefault.currency_symbol) ?? ""
     }
     
     static var currencyCode: String {
-        return UserDefaults.standard.string(forKey: UserDefault.currency_code) ?? ""
+        return UserDefaults(suiteName: appGroupName)!.string(forKey: UserDefault.currency_code) ?? ""
     }
     
     static var viewCurrency: String {
@@ -37,13 +45,13 @@ struct CurrencyManager {
         UserDefaults.standard.set(true, forKey: UserDefault.currency_is_set)
         
         let locale = Locale.current
-        UserDefaults.standard.set(locale.currencySymbol ?? "", forKey: UserDefault.currency_symbol)
-        UserDefaults.standard.set(locale.currencyCode ?? "", forKey: UserDefault.currency_code)
+        UserDefaults(suiteName: appGroupName)?.set(locale.currencySymbol ?? "", forKey: UserDefault.currency_symbol)
+        UserDefaults(suiteName: appGroupName)?.set(locale.currencyCode ?? "", forKey: UserDefault.currency_code)
     }
     
     static func setupCurrency(currency: Currency) {
-        UserDefaults.standard.set(currency.symbol, forKey: UserDefault.currency_symbol)
-        UserDefaults.standard.set(currency.code, forKey: UserDefault.currency_code)
+        UserDefaults(suiteName: appGroupName)?.set(currency.symbol, forKey: UserDefault.currency_symbol)
+        UserDefaults(suiteName: appGroupName)?.set(currency.code, forKey: UserDefault.currency_code)
     }
     
     static var currentCurrency: Currency {

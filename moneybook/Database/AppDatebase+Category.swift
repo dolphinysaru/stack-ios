@@ -9,8 +9,16 @@ import Foundation
 
 extension AppDatabase {
     internal func loadCategories(type: CategoryType) throws -> [Category] {
-        let categories: [Category]? = try? AppDatabase.shared.databaseReader.read { db in
+        let categories: [Category]? = try? databaseReader.read { db in
             try Category.fetchAll(db, sql: "SELECT * FROM category where type = :type", arguments: ["type": type.rawValue])
+        }
+        
+        return categories ?? [Category]()
+    }
+    
+    internal func loadAllCategories() throws -> [Category] {
+        let categories: [Category]? = try? databaseReader.read { db in
+            try Category.fetchAll(db, sql: "SELECT * FROM category")
         }
         
         return categories ?? [Category]()
@@ -83,7 +91,7 @@ extension AppDatabase {
     }
     
     func loadCategory(_ id: Int64) throws -> Category? {
-        return try? AppDatabase.shared.databaseReader.read { db in
+        return try? databaseReader.read { db in
             try Category.fetchOne(db, sql: "SELECT * FROM category where id = :id", arguments: ["id": id])
         }
     }
