@@ -62,7 +62,9 @@ class InputMemoViewController: BaseViewController {
         }
         
         if let top = navigationController?.topViewController as? BaseViewController {
-            top.loadGAInterstitial()
+            if isEnabledAd && RemoteConfigManager.shared.enabledInterstitial {
+                top.loadGAInterstitial()
+            }
         }
     }
     

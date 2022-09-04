@@ -12,6 +12,7 @@ import Firebase
 class RemoteConfigManager {
     static let shared = RemoteConfigManager()
     private var remoteConfig: RemoteConfig!
+    var enabledInterstitial = false
     
     private func setupRemoteConfig() {
         remoteConfig = RemoteConfig.remoteConfig()
@@ -20,9 +21,28 @@ class RemoteConfigManager {
         remoteConfig.configSettings = settings
     }
     
-    func fetchRemoteConfig(currentAppId: String, completion: (([FeaturedApp]) -> Void)?) {
+    func fetch() {
         setupRemoteConfig()
         
+        remoteConfig.fetch(withExpirationDuration: TimeInterval(1)) { (status, error) -> Void in
+            guard status == .success else {
+                print("Config not fetched")
+                print("Error: \(error?.localizedDescription ?? "No error available.")")
+                return
+            }
+            
+            print("Config fetched!")
+            self.remoteConfig.activate { [weak self] (success, error) in
+                guard let self = self else { return }
+                let enabled = self.remoteConfig.configValue(forKey: "enabled_interstitial").dataValue
+                guard let result = try? JSONDecoder().decode(Bool.self, from: enabled) else { return }
+                print("Config fetched! \(result)")
+                self.enabledInterstitial = result
+            }
+        }
+    }
+    
+    func fetchRemoteConfig(currentAppId: String, completion: (([FeaturedApp]) -> Void)?) {
         remoteConfig.fetch(withExpirationDuration: TimeInterval(1)) { (status, error) -> Void in
             guard status == .success else {
                 print("Config not fetched")
