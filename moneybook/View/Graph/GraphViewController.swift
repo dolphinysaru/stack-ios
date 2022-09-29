@@ -67,7 +67,7 @@ class GraphViewController: BaseViewController {
         if expendCategoryData.isEmpty {
             expendCategorySet = nil
         } else {
-            expendCategorySet = PieChartDataSet(entries: expendCategoryData, label: nil)
+            expendCategorySet = PieChartDataSet(entries: expendCategoryData, label: "")
         }
     }
     
@@ -91,7 +91,7 @@ class GraphViewController: BaseViewController {
         if expendPaymentData.isEmpty {
             expendPaymentSet = nil
         } else {
-            expendPaymentSet = PieChartDataSet(entries: expendPaymentData, label: nil)
+            expendPaymentSet = PieChartDataSet(entries: expendPaymentData, label: "")
         }
     }
     
@@ -115,7 +115,7 @@ class GraphViewController: BaseViewController {
         if incomeCategoryData.isEmpty {
             incomeCategorySet = nil
         } else {
-            incomeCategorySet = PieChartDataSet(entries: incomeCategoryData, label: nil)
+            incomeCategorySet = PieChartDataSet(entries: incomeCategoryData, label: "")
         }
     }
     

@@ -43,20 +43,21 @@ public final class DatabaseQueue: DatabaseWriter {
         // Be a nice iOS citizen, and don't consume too much memory
         // See https://github.com/groue/GRDB.swift/#memory-management
         #if os(iOS)
-        setupMemoryManagement()
+        if configuration.automaticMemoryManagement {
+            setupMemoryManagement()
+        }
         #endif
     }
     
     /// Opens an in-memory SQLite database.
     ///
-    ///     let dbQueue = DatabaseQueue()
+    ///     let dbQueue = try DatabaseQueue()
     ///
     /// Database memory is released when the database queue gets deallocated.
     ///
     /// - parameter configuration: A configuration.
-    public init(configuration: Configuration = Configuration()) {
-        // Assume SQLite always succeeds creating an in-memory database
-        writer = try! SerializedDatabase(
+    public init(configuration: Configuration = Configuration()) throws {
+        writer = try SerializedDatabase(
             path: ":memory:",
             configuration: configuration,
             defaultLabel: "GRDB.DatabaseQueue")
@@ -92,20 +93,15 @@ extension DatabaseQueue {
     /// as much memory as possible.
     private func setupMemoryManagement() {
         let center = NotificationCenter.default
-        
-        // Use raw notification names because of
-        // FB9801372 (UIApplication.didReceiveMemoryWarningNotification should not be declared @MainActor)
-        // TODO: Reuse UIApplication.didReceiveMemoryWarningNotification when possible.
-        // TODO: Reuse UIApplication.didEnterBackgroundNotification when possible.
         center.addObserver(
             self,
             selector: #selector(DatabaseQueue.applicationDidReceiveMemoryWarning(_:)),
-            name: NSNotification.Name(rawValue: "UIApplicationDidReceiveMemoryWarningNotification"),
+            name: UIApplication.didReceiveMemoryWarningNotification,
             object: nil)
         center.addObserver(
             self,
             selector: #selector(DatabaseQueue.applicationDidEnterBackground(_:)),
-            name: NSNotification.Name(rawValue: "UIApplicationDidEnterBackgroundNotification"),
+            name: UIApplication.didEnterBackgroundNotification,
             object: nil)
     }
     
@@ -117,12 +113,12 @@ extension DatabaseQueue {
         
         let task: UIBackgroundTaskIdentifier = application.beginBackgroundTask(expirationHandler: nil)
         if task == .invalid {
-            // Perform releaseMemory() synchronously.
+            // Release memory synchronously
             releaseMemory()
         } else {
-            // Perform releaseMemory() asynchronously.
-            DispatchQueue.global().async {
-                self.releaseMemory()
+            // Release memory asynchronously
+            writer.async { db in
+                db.releaseMemory()
                 application.endBackgroundTask(task)
             }
         }
@@ -130,8 +126,8 @@ extension DatabaseQueue {
     
     @objc
     private func applicationDidReceiveMemoryWarning(_ notification: NSNotification) {
-        DispatchQueue.global().async {
-            self.releaseMemory()
+        writer.async { db in
+            db.releaseMemory()
         }
     }
     #endif
@@ -194,32 +190,6 @@ extension DatabaseQueue {
     
     public func asyncRead(_ value: @escaping (Result<Database, Error>) -> Void) {
         writer.async { db in
-            do {
-                // The transaction guarantees snapshot isolation against eventual
-                // external connection.
-                try db.beginTransaction(.deferred)
-                try db.beginReadOnly()
-            } catch {
-                value(.failure(error))
-                return
-            }
-            
-            value(.success(db))
-            
-            // Ignore error because we can not notify it.
-            try? db.endReadOnly()
-            try? db.commit()
-        }
-    }
-    
-    /// :nodoc:
-    public func _weakAsyncRead(_ value: @escaping (Result<Database, Error>?) -> Void) {
-        writer.weakAsync { db in
-            guard let db = db else {
-                value(nil)
-                return
-            }
-            
             do {
                 // The transaction guarantees snapshot isolation against eventual
                 // external connection.
@@ -333,12 +303,12 @@ extension DatabaseQueue {
     }
     
     @_disfavoredOverload // SR-15150 Async overloading in protocol implementation fails
-    public func barrierWriteWithoutTransaction<T>(_ updates: (Database) throws -> T) rethrows -> T {
+    public func barrierWriteWithoutTransaction<T>(_ updates: (Database) throws -> T) throws -> T {
         try writer.sync(updates)
     }
     
-    public func asyncBarrierWriteWithoutTransaction(_ updates: @escaping (Database) -> Void) {
-        writer.async(updates)
+    public func asyncBarrierWriteWithoutTransaction(_ updates: @escaping (Result<Database, Error>) -> Void) {
+        writer.async { updates(.success($0)) }
     }
     
     /// Synchronously executes database updates in a protected dispatch queue,
@@ -366,11 +336,6 @@ extension DatabaseQueue {
         writer.async(updates)
     }
     
-    /// :nodoc:
-    public func _weakAsyncWriteWithoutTransaction(_ updates: @escaping (Database?) -> Void) {
-        writer.weakAsync(updates)
-    }
-    
     // MARK: - Database Observation
     
     /// :nodoc:
@@ -378,19 +343,20 @@ extension DatabaseQueue {
         observation: ValueObservation<Reducer>,
         scheduling scheduler: ValueObservationScheduler,
         onChange: @escaping (Reducer.Value) -> Void)
-    -> DatabaseCancellable
+    -> AnyDatabaseCancellable
     {
         if configuration.readonly {
+            // The easy case: the database does not change
             return _addReadOnly(
                 observation: observation,
                 scheduling: scheduler,
                 onChange: onChange)
+        } else {
+            // Observe from the writer database connection.
+            return _addWriteOnly(
+                observation: observation,
+                scheduling: scheduler,
+                onChange: onChange)
         }
-        
-        let observer = _addWriteOnly(
-            observation: observation,
-            scheduling: scheduler,
-            onChange: onChange)
-        return AnyDatabaseCancellable(cancel: observer.cancel)
     }
 }

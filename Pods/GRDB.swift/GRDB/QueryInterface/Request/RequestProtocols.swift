@@ -4,7 +4,7 @@ import Foundation
 
 /// The protocol for all requests that know how database rows should
 /// be interpreted.
-public protocol TypedRequest {
+public protocol TypedRequest<RowDecoder> {
     /// The type that can decode database rows.
     ///
     /// In the request below, it is Player:
@@ -21,15 +21,15 @@ public protocol SelectionRequest {
     ///
     ///     // SELECT id, email FROM player
     ///     var request = Player.all()
-    ///     request = request.select { db in [Column("id"), Column("email") })
+    ///     request = request.selectWhenConnected { db in [Column("id"), Column("email") })
     ///
     /// Any previous selection is replaced:
     ///
     ///     // SELECT email FROM player
     ///     request
-    ///         .select { db in [Column("id")] }
-    ///         .select { db in [Column("email")] }
-    func select(_ selection: @escaping (Database) throws -> [SQLSelectable]) -> Self
+    ///         .selectWhenConnected { db in [Column("id")] }
+    ///         .selectWhenConnected { db in [Column("email")] }
+    func selectWhenConnected(_ selection: @escaping (Database) throws -> [any SQLSelectable]) -> Self
     
     /// Creates a request which appends *selection promise*.
     ///
@@ -37,8 +37,8 @@ public protocol SelectionRequest {
     ///     var request = Player.all()
     ///     request = request
     ///         .select([Column("id"), Column("email")])
-    ///         .annotated(with: { db in [Column("name")] })
-    func annotated(with selection: @escaping (Database) throws -> [SQLSelectable]) -> Self
+    ///         .annotatedWhenConnected(with: { db in [Column("name")] })
+    func annotatedWhenConnected(with selection: @escaping (Database) throws -> [any SQLSelectable]) -> Self
 }
 
 extension SelectionRequest {
@@ -54,8 +54,8 @@ extension SelectionRequest {
     ///     request
     ///         .select([Column("id")])
     ///         .select([Column("email")])
-    public func select(_ selection: [SQLSelectable]) -> Self {
-        select { _ in selection }
+    public func select(_ selection: [any SQLSelectable]) -> Self {
+        selectWhenConnected { _ in selection }
     }
     
     /// Creates a request which selects *selection*.
@@ -70,7 +70,7 @@ extension SelectionRequest {
     ///     request
     ///         .select(Column("id"))
     ///         .select(Column("email"))
-    public func select(_ selection: SQLSelectable...) -> Self {
+    public func select(_ selection: any SQLSelectable...) -> Self {
         select(selection)
     }
     
@@ -120,8 +120,8 @@ extension SelectionRequest {
     ///     request = request
     ///         .select([Column("id"), Column("email")])
     ///         .annotated(with: [Column("name")])
-    public func annotated(with selection: [SQLSelectable]) -> Self {
-        annotated(with: { _ in selection })
+    public func annotated(with selection: [any SQLSelectable]) -> Self {
+        annotatedWhenConnected(with: { _ in selection })
     }
     
     /// Creates a request which appends *selection*.
@@ -131,7 +131,7 @@ extension SelectionRequest {
     ///     request = request
     ///         .select([Column("id"), Column("email")])
     ///         .annotated(with: Column("name"))
-    public func annotated(with selection: SQLSelectable...) -> Self {
+    public func annotated(with selection: any SQLSelectable...) -> Self {
         annotated(with: selection)
     }
 }
@@ -145,22 +145,11 @@ public protocol FilteredRequest {
     ///
     ///     // SELECT * FROM player WHERE 1
     ///     var request = Player.all()
-    ///     request = request.filter { db in true }
-    func filter(_ predicate: @escaping (Database) throws -> SQLExpressible) -> Self
+    ///     request = request.filterWhenConnected { db in true }
+    func filterWhenConnected(_ predicate: @escaping (Database) throws -> any SQLExpressible) -> Self
 }
 
 extension FilteredRequest {
-    /// Creates a request with the provided *predicate* added to the
-    /// eventual set of already applied predicates.
-    ///
-    ///     // SELECT * FROM player WHERE 0
-    ///     var request = Player.all()
-    ///     request = request.filter(false)
-    @available(*, deprecated, message: "Did you mean filter(id:) or filter(key:)? If not, prefer filter(value.databaseValue) instead. See also none().") // swiftlint:disable:this line_length
-    public func filter(_ predicate: SQLExpressible) -> Self {
-        filter { _ in predicate }
-    }
-    
     // Accept SQLSpecificExpressible instead of SQLExpressible, so that we
     // prevent the `Player.filter(42)` misuse.
     // See https://github.com/groue/GRDB.swift/pull/864
@@ -170,8 +159,8 @@ extension FilteredRequest {
     ///     // SELECT * FROM player WHERE email = 'arthur@example.com'
     ///     var request = Player.all()
     ///     request = request.filter(Column("email") == "arthur@example.com")
-    public func filter(_ predicate: SQLSpecificExpressible) -> Self {
-        filter { _ in predicate }
+    public func filter(_ predicate: some SQLSpecificExpressible) -> Self {
+        filterWhenConnected { _ in predicate }
     }
     
     /// Creates a request with the provided *predicate* added to the
@@ -205,7 +194,7 @@ extension FilteredRequest {
     ///     var request = Player.all()
     ///     request = request.none()
     public func none() -> Self {
-        filter { _ in false }
+        filterWhenConnected { _ in false }
     }
 }
 
@@ -244,8 +233,8 @@ extension TableRequest where Self: FilteredRequest, Self: TypedRequest {
     ///     let request = try Player...filter(key: 1)
     ///
     /// - parameter key: A primary key
-    public func filter<PrimaryKeyType: DatabaseValueConvertible>(key: PrimaryKeyType?) -> Self {
-        guard let key = key else {
+    public func filter(key: some DatabaseValueConvertible) -> Self {
+        if key.databaseValue.isNull {
             return none()
         }
         return filter(keys: [key])
@@ -267,14 +256,14 @@ extension TableRequest where Self: FilteredRequest, Self: TypedRequest {
         // (customizing TableRequest where RowDecoder: EncodableRecord) would
         // make it impractical to define `filter(id:)`, `fetchOne(_:key:)`,
         // `deleteAll(_:ids:)` etc.
-        if let recordType = RowDecoder.self as? EncodableRecord.Type {
-            if Sequence.Element.self == Date.self {
+        if let recordType = RowDecoder.self as? any EncodableRecord.Type {
+            if Sequence.Element.self == Date.self || Sequence.Element.self == Optional<Date>.self {
                 let strategy = recordType.databaseDateEncodingStrategy
-                let keys = keys.compactMap { strategy.encode($0 as! Date)?.databaseValue }
+                let keys = keys.compactMap { ($0 as! Date?).flatMap(strategy.encode)?.databaseValue }
                 return filter(rawKeys: keys)
-            } else if Sequence.Element.self == UUID.self {
+            } else if Sequence.Element.self == UUID.self || Sequence.Element.self == Optional<UUID>.self {
                 let strategy = recordType.databaseUUIDEncodingStrategy
-                let keys = keys.map { strategy.encode($0 as! UUID).databaseValue }
+                let keys = keys.map { ($0 as! UUID?).map(strategy.encode)?.databaseValue }
                 return filter(rawKeys: keys)
             }
         }
@@ -285,25 +274,30 @@ extension TableRequest where Self: FilteredRequest, Self: TypedRequest {
     /// Creates a request filtered by primary key.
     ///
     ///     // SELECT * FROM player WHERE ... id IN (1, 2, 3)
-    ///     let request = try Player...filter(encodedKeys: [1, 2, 3])
+    ///     let request = try Player...filter(rawKeys: [1, 2, 3])
     ///
     /// - parameter keys: A collection of primary keys
-    func filter<Sequence: Swift.Sequence>(rawKeys: Sequence)
-    -> Self
-    where Sequence.Element: DatabaseValueConvertible
+    func filter<Keys>(rawKeys: Keys) -> Self
+    where Keys: Sequence, Keys.Element: DatabaseValueConvertible
     {
-        let keys = Array(rawKeys)
-        if keys.isEmpty {
+        // Don't bother removing NULLs. We'd lose CPU cycles, and this does not
+        // change the SQLite results anyway.
+        let expressions = rawKeys.map {
+            $0.databaseValue.sqlExpression
+        }
+        
+        if expressions.isEmpty {
+            // Don't hit the database
             return none()
         }
         
         let databaseTableName = self.databaseTableName
-        return filter { db in
+        return filterWhenConnected { db in
             let primaryKey = try db.primaryKey(databaseTableName)
             GRDBPrecondition(
                 primaryKey.columns.count == 1,
                 "Requesting by key requires a single-column primary key in the table \(databaseTableName)")
-            return keys.contains(Column(primaryKey.columns[0]))
+            return SQLCollection.array(expressions).contains(Column(primaryKey.columns[0]).sqlExpression)
         }
     }
     
@@ -316,8 +310,8 @@ extension TableRequest where Self: FilteredRequest, Self: TypedRequest {
     /// index on the key columns.
     ///
     /// - parameter key: A unique key
-    public func filter(key: [String: DatabaseValueConvertible?]?) -> Self {
-        guard let key = key else {
+    public func filter(key: [String: (any DatabaseValueConvertible)?]?) -> Self {
+        guard let key else {
             return none()
         }
         return filter(keys: [key])
@@ -325,28 +319,28 @@ extension TableRequest where Self: FilteredRequest, Self: TypedRequest {
     
     /// Creates a request filtered by unique key.
     ///
-    ///     // SELECT * FROM player WHERE ... email = 'arthur@example.com' OR ...
+    ///     // SELECT * FROM player WHERE ... email = 'arthur@example.com' AND ...
     ///     let request = try Player...filter(keys: [["email": "arthur@example.com"], ...])
     ///
     /// When executed, this request raises a fatal error if there is no unique
     /// index on the key columns.
     ///
     /// - parameter keys: A collection of unique keys
-    public func filter(keys: [[String: DatabaseValueConvertible?]]) -> Self {
+    public func filter(keys: [[String: (any DatabaseValueConvertible)?]]) -> Self {
         if keys.isEmpty {
             return none()
         }
         
         let databaseTableName = self.databaseTableName
-        return filter { db in
+        return filterWhenConnected { db in
             try keys
                 .map { key in
                     // Prevent filter(keys: [["foo": 1, "bar": 2]]) where
-                    // ("foo", "bar") is not a unique key (primary key or columns of a
-                    // unique index)
+                    // ("foo", "bar") do not contain a unique key (primary key
+                    // or unique index).
                     guard let columns = try db.columnsForUniqueKey(key.keys, in: databaseTableName) else {
                         fatalError("""
-                            table \(databaseTableName) has no unique index on column(s) \
+                            table \(databaseTableName) has no unique key on column(s) \
                             \(key.keys.sorted().joined(separator: ", "))
                             """)
                     }
@@ -398,41 +392,8 @@ where Self: FilteredRequest,
     ///     let request = try Player...filter(ids: [1, 2, 3])
     ///
     /// - parameter ids: A collection of primary keys
-    public func filter<Collection: Swift.Collection>(ids: Collection)
-    -> Self
-    where Collection.Element == RowDecoder.ID
-    {
-        filter(keys: ids)
-    }
-}
-
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6, *)
-extension TableRequest
-where Self: FilteredRequest,
-      Self: TypedRequest,
-      RowDecoder: Identifiable,
-      RowDecoder.ID: _OptionalProtocol,
-      RowDecoder.ID.Wrapped: DatabaseValueConvertible
-{
-    /// Creates a request filtered by primary key.
-    ///
-    ///     // SELECT * FROM player WHERE ... id = 1
-    ///     let request = try Player...filter(id: 1)
-    ///
-    /// - parameter id: A primary key
-    public func filter(id: RowDecoder.ID.Wrapped) -> Self {
-        filter(key: id)
-    }
-    
-    /// Creates a request filtered by primary key.
-    ///
-    ///     // SELECT * FROM player WHERE ... id IN (1, 2, 3)
-    ///     let request = try Player...filter(ids: [1, 2, 3])
-    ///
-    /// - parameter ids: A collection of primary keys
-    public func filter<Collection: Swift.Collection>(ids: Collection)
-    -> Self
-    where Collection.Element == RowDecoder.ID.Wrapped
+    public func filter<IDS>(ids: IDS) -> Self
+    where IDS: Collection, IDS.Element == RowDecoder.ID
     {
         filter(keys: ids)
     }
@@ -442,7 +403,7 @@ extension TableRequest where Self: OrderedRequest {
     /// Creates a request ordered by primary key.
     public func orderByPrimaryKey() -> Self {
         let tableName = self.databaseTableName
-        return order { db in
+        return orderWhenConnected { db in
             try db.primaryKey(tableName).columns.map(SQLExpression.column)
         }
     }
@@ -452,20 +413,28 @@ extension TableRequest where Self: AggregatingRequest {
     /// Creates a request grouped by primary key.
     public func groupByPrimaryKey() -> Self {
         let tableName = self.databaseTableName
-        return group { db in
+        return groupWhenConnected { db in
             let primaryKey = try db.primaryKey(tableName)
             if let rowIDColumn = primaryKey.rowIDColumn {
-                // Prefer the user-provided name of the rowid
+                // Prefer the user-provided name of the rowid:
+                //
+                //  // CREATE TABLE player (id INTEGER PRIMARY KEY, ...)
+                //  // SELECT * FROM player GROUP BY id
+                //  Player.all().groupByPrimaryKey()
                 return [Column(rowIDColumn)]
             } else if primaryKey.tableHasRowID {
                 // Prefer the rowid
-                #if compiler(>=5.5)
+                //
+                //  // CREATE TABLE player (uuid TEXT NOT NULL PRIMARY KEY, ...)
+                //  // SELECT * FROM player GROUP BY rowid
+                //  Player.all().groupByPrimaryKey()
                 return [.rowID]
-                #else
-                return [Column.rowID]
-                #endif
             } else {
                 // WITHOUT ROWID table: group by primary key columns
+                //
+                //  // CREATE TABLE player (uuid TEXT NOT NULL PRIMARY KEY, ...) WITHOUT ROWID
+                //  // SELECT * FROM player GROUP BY uuid
+                //  Player.all().groupByPrimaryKey()
                 return primaryKey.columns.map { Column($0) }
             }
         }
@@ -477,21 +446,21 @@ extension TableRequest where Self: AggregatingRequest {
 /// The protocol for all requests that can aggregate.
 public protocol AggregatingRequest {
     /// Creates a request grouped according to *expressions promise*.
-    func group(_ expressions: @escaping (Database) throws -> [SQLExpressible]) -> Self
+    func groupWhenConnected(_ expressions: @escaping (Database) throws -> [any SQLExpressible]) -> Self
     
     /// Creates a request with the provided *predicate promise* added to the
     /// eventual set of already applied predicates.
-    func having(_ predicate: @escaping (Database) throws -> SQLExpressible) -> Self
+    func havingWhenConnected(_ predicate: @escaping (Database) throws -> any SQLExpressible) -> Self
 }
 
 extension AggregatingRequest {
     /// Creates a request grouped according to *expressions*.
-    public func group(_ expressions: [SQLExpressible]) -> Self {
-        group { _ in expressions }
+    public func group(_ expressions: [any SQLExpressible]) -> Self {
+        groupWhenConnected { _ in expressions }
     }
     
     /// Creates a request grouped according to *expressions*.
-    public func group(_ expressions: SQLExpressible...) -> Self {
+    public func group(_ expressions: any SQLExpressible...) -> Self {
         group(expressions)
     }
     
@@ -508,8 +477,8 @@ extension AggregatingRequest {
     
     /// Creates a request with the provided *predicate* added to the
     /// eventual set of already applied predicates.
-    public func having(_ predicate: SQLExpressible) -> Self {
-        having { _ in predicate }
+    public func having(_ predicate: some SQLExpressible) -> Self {
+        havingWhenConnected { _ in predicate }
     }
     
     /// Creates a request with the provided *sql* added to the
@@ -540,10 +509,10 @@ public protocol OrderedRequest {
     ///
     ///     // SELECT * FROM player ORDER BY name
     ///     request
-    ///         .order{ _ in [Column("email")] }
+    ///         .orderWhenConnected{ _ in [Column("email")] }
     ///         .reversed()
-    ///         .order{ _ in [Column("name")] }
-    func order(_ orderings: @escaping (Database) throws -> [SQLOrderingTerm]) -> Self
+    ///         .orderWhenConnected{ _ in [Column("name")] }
+    func orderWhenConnected(_ orderings: @escaping (Database) throws -> [any SQLOrderingTerm]) -> Self
     
     /// Creates a request that reverses applied orderings.
     ///
@@ -580,8 +549,8 @@ extension OrderedRequest {
     ///         .order(Column("email"))
     ///         .reversed()
     ///         .order(Column("name"))
-    public func order(_ orderings: SQLOrderingTerm...) -> Self {
-        order { _ in orderings }
+    public func order(_ orderings: any SQLOrderingTerm...) -> Self {
+        orderWhenConnected { _ in orderings }
     }
     
     /// Creates a request with the provided *orderings*.
@@ -597,8 +566,8 @@ extension OrderedRequest {
     ///         .order(Column("email"))
     ///         .reversed()
     ///         .order(Column("name"))
-    public func order(_ orderings: [SQLOrderingTerm]) -> Self {
-        order { _ in orderings }
+    public func order(_ orderings: [any SQLOrderingTerm]) -> Self {
+        orderWhenConnected { _ in orderings }
     }
     
     /// Creates a request sorted according to *sql*.
@@ -666,7 +635,7 @@ public protocol _JoinableRequest {
 }
 
 /// The protocol for all requests that can be associated.
-public protocol JoinableRequest: TypedRequest, _JoinableRequest { }
+public protocol JoinableRequest<RowDecoder>: TypedRequest, _JoinableRequest { }
 
 extension JoinableRequest {
     /// Creates a request that prefetches an association.
@@ -740,7 +709,7 @@ extension JoinableRequest where Self: SelectionRequest {
         let selection = association._sqlAssociation.destination.relation.selectionPromise
         return self
             .joining(optional: association.aliased(alias))
-            .annotated(with: { db in
+            .annotatedWhenConnected(with: { db in
                 try selection.resolve(db).map { selection in
                     selection.qualified(with: alias)
                 }
@@ -783,7 +752,7 @@ extension JoinableRequest where Self: SelectionRequest {
         let alias = TableAlias()
         return self
             .joining(required: association.aliased(alias))
-            .annotated(with: { db in
+            .annotatedWhenConnected(with: { db in
                 try selection.resolve(db).map { selection in
                     selection.qualified(with: alias)
                 }
@@ -794,9 +763,9 @@ extension JoinableRequest where Self: SelectionRequest {
 // MARK: - DerivableRequest
 
 /// The base protocol for all requests that can be refined.
-public protocol DerivableRequest: AggregatingRequest, FilteredRequest,
-                                  JoinableRequest, OrderedRequest,
-                                  SelectionRequest, TableRequest
+public protocol DerivableRequest<RowDecoder>: AggregatingRequest, FilteredRequest,
+                                              JoinableRequest, OrderedRequest,
+                                              SelectionRequest, TableRequest
 {
     /// Creates a request which returns distinct rows.
     ///
@@ -808,20 +777,6 @@ public protocol DerivableRequest: AggregatingRequest, FilteredRequest,
     ///     var request = Player.select(Column("name"))
     ///     request = request.distinct()
     func distinct() -> Self
-    
-    /// Creates a request which fetches *limit* rows, starting at *offset*.
-    ///
-    ///     // SELECT * FROM player LIMIT 10 OFFSET 20
-    ///     var request = Player.all()
-    ///     request = request.limit(10, offset: 20)
-    ///
-    /// Any previous limit is replaced.
-    ///
-    /// - warning: Avoid to call this method on associations: it is unlikely it
-    ///   does what you expect it to do. Only call it on requests.
-    ///
-    /// :nodoc:
-    func limit(_ limit: Int, offset: Int?) -> Self
     
     /// Returns a request which embeds the common table expression.
     ///
@@ -856,23 +811,18 @@ public protocol DerivableRequest: AggregatingRequest, FilteredRequest,
     func with<RowDecoder>(_ cte: CommonTableExpression<RowDecoder>) -> Self
 }
 
+// Association aggregates don't require all DerivableRequest abilities. The
+// minimum set of requirements is:
+//
+// - AggregatingRequest, for the GROUP BY and HAVING clauses
+// - TableRequest, for grouping by primary key
+// - JoinableRequest, for joining associations
+// - SelectionRequest, for annotating the selection
+//
+// It is just that extending DerivableRequest is simpler. We want the user to
+// use aggregates on QueryInterfaceRequest and associations: both conform to
+// DerivableRequest already.
 extension DerivableRequest {
-    /// Creates a request which fetches *limit* rows.
-    ///
-    ///     // SELECT * FROM player LIMIT 1
-    ///     var request = Player.all()
-    ///     request = request.limit(1)
-    ///
-    /// Any previous limit is replaced.
-    ///
-    /// - warning: Avoid to call this method on associations: it is unlikely it
-    ///   does what you expect it to do. Only call it on requests.
-    ///
-    /// :nodoc:
-    public func limit(_ limit: Int) -> Self {
-        self.limit(limit, offset: nil)
-    }
-    
     private func annotated(with aggregate: AssociationAggregate<RowDecoder>) -> Self {
         var request = self
         let expression = aggregate.prepare(&request)

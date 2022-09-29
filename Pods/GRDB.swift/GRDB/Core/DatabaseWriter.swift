@@ -89,7 +89,7 @@ public protocol DatabaseWriter: DatabaseReader {
     /// - parameter updates: The updates to the database.
     /// - throws: The error thrown by the updates.
     @_disfavoredOverload // SR-15150 Async overloading in protocol implementation fails
-    func barrierWriteWithoutTransaction<T>(_ updates: (Database) throws -> T) rethrows -> T
+    func barrierWriteWithoutTransaction<T>(_ updates: (Database) throws -> T) throws -> T
     
     /// Asynchronously executes database updates in a protected dispatch queue,
     /// outside of any transaction, and returns the result.
@@ -98,8 +98,10 @@ public protocol DatabaseWriter: DatabaseReader {
     /// until all pending writes and reads are completed. They postpone all
     /// other writes and reads until they are completed.
     ///
-    /// - parameter updates: The updates to the database.
-    func asyncBarrierWriteWithoutTransaction(_ updates: @escaping (Database) -> Void)
+    /// - parameter updates: A function that accesses the database. Its argument
+    ///   is a `Result` that provides the database connection, or the failure
+    ///   that would prevent establishing the barrier access to the database.
+    func asyncBarrierWriteWithoutTransaction(_ updates: @escaping (Result<Database, Error>) -> Void)
     
     /// Asynchronously executes database updates in a protected dispatch queue,
     /// wrapped inside a transaction.
@@ -133,12 +135,6 @@ public protocol DatabaseWriter: DatabaseReader {
     /// Eventual concurrent reads may see partial updates unless you wrap them
     /// in a transaction.
     func asyncWriteWithoutTransaction(_ updates: @escaping (Database) -> Void)
-    
-    /// Asynchronously executes database updates in a protected dispatch queue,
-    /// outside of any transaction, without retaining self.
-    ///
-    /// :nodoc:
-    func _weakAsyncWriteWithoutTransaction(_ updates: @escaping (Database?) -> Void)
     
     /// Synchronously executes database updates in a protected dispatch queue,
     /// outside of any transaction, and returns the result.
@@ -292,16 +288,14 @@ extension DatabaseWriter {
     ///   the observer lifetime (observation lasts until observer
     ///   is deallocated).
     public func add(
-        transactionObserver: TransactionObserver,
+        transactionObserver: some TransactionObserver,
         extent: Database.TransactionObservationExtent = .observerLifetime)
     {
         writeWithoutTransaction { $0.add(transactionObserver: transactionObserver, extent: extent) }
     }
     
-    public func remove(transactionObserver: TransactionObserver) {
-        _weakAsyncWriteWithoutTransaction {
-            $0?.remove(transactionObserver: transactionObserver)
-        }
+    public func remove(transactionObserver: some TransactionObserver) {
+        writeWithoutTransaction { $0.remove(transactionObserver: transactionObserver) }
     }
     
     // MARK: - Erasing the content of the database
@@ -366,60 +360,31 @@ extension DatabaseWriter {
     
     // MARK: - Database Observation
     
-    /// A write-only observation only uses the serialized writer
+    /// Starts an observation that fetches fresh database values synchronously,
+    /// from the writer database connection, right after the database
+    /// was modified.
     func _addWriteOnly<Reducer: ValueReducer>(
         observation: ValueObservation<Reducer>,
         scheduling scheduler: ValueObservationScheduler,
         onChange: @escaping (Reducer.Value) -> Void)
-    -> ValueObserver<Reducer> // For testability
+    -> AnyDatabaseCancellable
     {
         assert(!configuration.readonly, "Use _addReadOnly(observation:) instead")
-        
-        let reduceQueueLabel = configuration.identifier(
-            defaultLabel: "GRDB",
-            purpose: "ValueObservation")
-        let observer = ValueObserver(
-            observation: observation,
+        let observer = ValueWriteOnlyObserver(
             writer: self,
             scheduler: scheduler,
-            reduceQueue: configuration.makeDispatchQueue(label: reduceQueueLabel),
+            readOnly: !observation.requiresWriteAccess,
+            trackingMode: observation.trackingMode,
+            reducer: observation.makeReducer(),
+            events: observation.events,
             onChange: onChange)
-        
-        if scheduler.immediateInitialValue() {
-            do {
-                let initialValue: Reducer.Value = try unsafeReentrantWrite { db in
-                    let initialValue = try observer.fetchInitialValue(db)
-                    db.add(transactionObserver: observer, extent: .observerLifetime)
-                    return initialValue
-                }
-                onChange(initialValue)
-            } catch {
-                observer.complete()
-                observation.events.didFail?(error)
-            }
-        } else {
-            _weakAsyncWriteWithoutTransaction { db in
-                guard let db = db else { return }
-                if observer.isCompleted { return }
-                do {
-                    let initialValue = try observer.fetchInitialValue(db)
-                    observer.notifyChange(initialValue)
-                    db.add(transactionObserver: observer, extent: .observerLifetime)
-                } catch {
-                    observer.notifyErrorAndComplete(error)
-                }
-            }
-        }
-        
-        return observer
+        return observer.start()
     }
 }
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
 extension DatabaseWriter {
     // MARK: - Asynchronous Database Access
     
-    // TODO: remove @escaping as soon as it is possible
     /// Asynchronously executes database updates, wrapped inside a transaction,
     /// and returns the result.
     ///
@@ -443,7 +408,6 @@ extension DatabaseWriter {
         }
     }
     
-    // TODO: remove @escaping as soon as it is possible
     /// Asynchronously executes database updates, outside of any transaction,
     /// and returns the result.
     ///
@@ -467,7 +431,6 @@ extension DatabaseWriter {
         }
     }
     
-    // TODO: remove @escaping as soon as it is possible
     /// Asynchronously executes database updates, outside of any transaction,
     /// and returns the result.
     ///
@@ -485,12 +448,8 @@ extension DatabaseWriter {
     async throws -> T
     {
         try await withUnsafeThrowingContinuation { continuation in
-            asyncBarrierWriteWithoutTransaction { db in
-                do {
-                    try continuation.resume(returning: updates(db))
-                } catch {
-                    continuation.resume(throwing: error)
-                }
+            asyncBarrierWriteWithoutTransaction { dbResult in
+                continuation.resume(with: dbResult.flatMap { db in Result { try updates(db) } })
             }
         }
     }
@@ -529,8 +488,6 @@ extension DatabaseWriter {
         }
     }
 }
-#endif
-
 
 #if canImport(Combine)
 extension DatabaseWriter {
@@ -576,11 +533,11 @@ extension DatabaseWriter {
     -> DatabasePublishers.Write<Output>
     where S: Scheduler
     {
-        OnDemandFuture({ fulfill in
+        OnDemandFuture { fulfill in
             self.asyncWrite(updates, completion: { _, result in
                 fulfill(result)
             })
-        })
+        }
         // We don't want users to process emitted values on a
         // database dispatch queue.
         .receiveValues(on: scheduler)
@@ -629,7 +586,7 @@ extension DatabaseWriter {
     -> DatabasePublishers.Write<Output>
     where S: Scheduler
     {
-        OnDemandFuture({ fulfill in
+        OnDemandFuture { fulfill in
             self.asyncWriteWithoutTransaction { db in
                 var updatesValue: T?
                 do {
@@ -645,7 +602,7 @@ extension DatabaseWriter {
                     fulfill(dbResult.flatMap { db in Result { try value(db, updatesValue!) } })
                 }
             }
-        })
+        }
         // We don't want users to process emitted values on a
         // database dispatch queue.
         .receiveValues(on: scheduler)
@@ -679,7 +636,7 @@ extension DatabasePublishers {
 @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension Publisher where Failure == Error {
     fileprivate func eraseToWritePublisher() -> DatabasePublishers.Write<Output> {
-        .init(upstream: eraseToAnyPublisher())
+        .init(upstream: self.eraseToAnyPublisher())
     }
 }
 #endif
@@ -728,10 +685,10 @@ public class DatabaseFuture<Value> {
 /// Instances of AnyDatabaseWriter forward their methods to an arbitrary
 /// underlying database writer.
 public final class AnyDatabaseWriter: DatabaseWriter {
-    private let base: DatabaseWriter
+    private let base: any DatabaseWriter
     
     /// Creates a database writer that wraps a base database writer.
-    public init(_ base: DatabaseWriter) {
+    public init(_ base: some DatabaseWriter) {
         self.base = base
     }
     
@@ -758,11 +715,6 @@ public final class AnyDatabaseWriter: DatabaseWriter {
     
     public func asyncRead(_ value: @escaping (Result<Database, Error>) -> Void) {
         base.asyncRead(value)
-    }
-    
-    /// :nodoc:
-    public func _weakAsyncRead(_ value: @escaping (Result<Database, Error>?) -> Void) {
-        base._weakAsyncRead(value)
     }
     
     @_disfavoredOverload // SR-15150 Async overloading in protocol implementation fails
@@ -800,11 +752,11 @@ public final class AnyDatabaseWriter: DatabaseWriter {
     }
     
     @_disfavoredOverload // SR-15150 Async overloading in protocol implementation fails
-    public func barrierWriteWithoutTransaction<T>(_ updates: (Database) throws -> T) rethrows -> T {
+    public func barrierWriteWithoutTransaction<T>(_ updates: (Database) throws -> T) throws -> T {
         try base.barrierWriteWithoutTransaction(updates)
     }
     
-    public func asyncBarrierWriteWithoutTransaction(_ updates: @escaping (Database) -> Void) {
+    public func asyncBarrierWriteWithoutTransaction(_ updates: @escaping (Result<Database, Error>) -> Void) {
         base.asyncBarrierWriteWithoutTransaction(updates)
     }
     
@@ -819,11 +771,6 @@ public final class AnyDatabaseWriter: DatabaseWriter {
         base.asyncWriteWithoutTransaction(updates)
     }
     
-    /// :nodoc:
-    public func _weakAsyncWriteWithoutTransaction(_ updates: @escaping (Database?) -> Void) {
-        base._weakAsyncWriteWithoutTransaction(updates)
-    }
-    
     public func unsafeReentrantWrite<T>(_ updates: (Database) throws -> T) rethrows -> T {
         try base.unsafeReentrantWrite(updates)
     }
@@ -835,7 +782,7 @@ public final class AnyDatabaseWriter: DatabaseWriter {
         observation: ValueObservation<Reducer>,
         scheduling scheduler: ValueObservationScheduler,
         onChange: @escaping (Reducer.Value) -> Void)
-    -> DatabaseCancellable
+    -> AnyDatabaseCancellable
     {
         base._add(
             observation: observation,

@@ -4,9 +4,9 @@ import Foundation
 /// ValueObservationScheduler determines how `ValueObservation` notifies its
 /// fresh values.
 public class ValueObservationScheduler {
-    private let impl: ValueObservationSchedulerImpl
+    private let impl: any ValueObservationSchedulerImpl
     
-    private init(impl: ValueObservationSchedulerImpl) {
+    private init(impl: any ValueObservationSchedulerImpl) {
         self.impl = impl
     }
     
@@ -14,6 +14,9 @@ public class ValueObservationScheduler {
         impl.schedule(action)
     }
     
+    /// Returns whether the initial value should be immediately notified.
+    ///
+    /// If true, then this method was called on the main thread.
     func immediateInitialValue() -> Bool {
         impl.immediateInitialValue()
     }
@@ -31,7 +34,7 @@ public class ValueObservationScheduler {
     ///         in: dbQueue,
     ///         scheduling: .async(onQueue: .main),
     ///         onError: { error in ... },
-    ///         onChange: { players: [Player] in
+    ///         onChange: { (players: [Player]) in
     ///             print("fresh players: \(players)")
     ///         })
     public static func async(onQueue queue: DispatchQueue) -> ValueObservationScheduler {
@@ -51,7 +54,7 @@ public class ValueObservationScheduler {
     ///         in: dbQueue,
     ///         scheduling: .immediate,
     ///         onError: { error in ... },
-    ///         onChange: { players: [Player] in
+    ///         onChange: { (players: [Player]) in
     ///             print("fresh players: \(players)")
     ///         })
     ///     // <- here "fresh players" is already printed.
@@ -71,6 +74,10 @@ public class ValueObservationScheduler {
 
 private protocol ValueObservationSchedulerImpl {
     func schedule(_ action: @escaping () -> Void)
+    
+    /// Returns whether the initial value should be immediately notified.
+    ///
+    /// If true, then this method was called on the main thread.
     func immediateInitialValue() -> Bool
 }
 

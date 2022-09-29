@@ -8,12 +8,6 @@ public protocol _ValueReducer {
     /// The type of observed values
     associatedtype Value
     
-    /// Fetches database values upon changes in an observed database region.
-    ///
-    /// ValueReducer semantics require that this method does not depend on
-    /// the state of the reducer.
-    func _fetch(_ db: Database) throws -> Fetched
-    
     /// Transforms a fetched value into an eventual observed value. Returns nil
     /// when observer should not be notified.
     ///
@@ -26,17 +20,23 @@ public protocol _ValueReducer {
     ///     reducer._value(...) // MUST NOT be nil
     ///     reducer._value(...) // MAY be nil
     ///     reducer._value(...) // MAY be nil
-    mutating func _value(_ fetched: Fetched) -> Value?
+    mutating func _value(_ fetched: Fetched) throws -> Value?
 }
 
-/// The `ValueReducer` protocol supports `ValueObservation`.
-public protocol ValueReducer: _ValueReducer { }
-
-extension ValueReducer {
-    mutating func fetchAndReduce(_ db: Database) throws -> Value? {
-        try _value(_fetch(db))
-    }
+/// Implementation details of `ValueReducer`, able to observe from any database
+/// reader (``DatabaseQueue``, ``DatabasePool``).
+///
+/// :nodoc:
+public protocol _DatabaseValueReducer: _ValueReducer {
+    /// Fetches database values upon changes in an observed database region.
+    ///
+    /// This method must does not depend on the state of the reducer.
+    func _fetch(_ db: Database) throws -> Fetched
 }
+
+/// `ValueReducer` supports ``ValueObservation`` that can observe from any
+/// database reader (``DatabaseQueue``, ``DatabasePool``).
+public typealias ValueReducer = _ValueReducer & _DatabaseValueReducer
 
 /// A namespace for types related to the `ValueReducer` protocol.
 public enum ValueReducers {
@@ -45,10 +45,7 @@ public enum ValueReducers {
     // For example, ValueObservation.tracking(_:) is, practically,
     // ValueObservation<ValueReducers.Auto>.tracking(_:).
     /// :nodoc:
-    public enum Auto: ValueReducer {
-        /// :nodoc:
-        public func _fetch(_ db: Database) throws -> Never { preconditionFailure() }
-        /// :nodoc:
+    public enum Auto: _ValueReducer {
         public mutating func _value(_ fetched: Never) -> Never? { }
     }
 }

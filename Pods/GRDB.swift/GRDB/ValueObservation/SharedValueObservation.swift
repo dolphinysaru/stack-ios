@@ -60,7 +60,7 @@ extension ValueObservation {
     ///
     ///     let cancellable = try sharedObservation.start(
     ///         onError: { error in ... },
-    ///         onChange: { players: [Player] in
+    ///         onChange: { (players: [Player]) in
     ///             print("fresh players: \(players)")
     ///         })
     ///     // <- here "fresh players" is already printed.
@@ -79,10 +79,11 @@ extension ValueObservation {
     /// - parameter extent: The extent of the shared database observation.
     /// - returns: A `SharedValueObservation`
     public func shared(
-        in reader: DatabaseReader,
+        in reader: some DatabaseReader,
         scheduling scheduler: ValueObservationScheduler = .async(onQueue: .main),
         extent: SharedValueObservationExtent = .whileObserved)
     -> SharedValueObservation<Reducer.Value>
+    where Reducer: ValueReducer
     {
         SharedValueObservation(scheduling: scheduler, extent: extent) { onError, onChange in
             self.start(in: reader, scheduling: scheduler, onError: onError, onChange: onChange)
@@ -103,7 +104,7 @@ extension ValueObservation {
 ///
 ///     let cancellable = try sharedObservation.start(
 ///         onError: { error in ... },
-///         onChange: { players: [Player] in
+///         onChange: { (players: [Player]) in
 ///             print("Players have changed.")
 ///         })
 ///
@@ -164,7 +165,7 @@ public final class SharedValueObservation<Element> {
     ///
     ///     let cancellable = try sharedObservation.start(
     ///         onError: { error in ... },
-    ///         onChange: { players: [Player] in
+    ///         onChange: { (players: [Player]) in
     ///             print("fresh players: \(players)")
     ///         })
     ///
@@ -175,7 +176,7 @@ public final class SharedValueObservation<Element> {
     public func start(
         onError: @escaping (Error) -> Void,
         onChange: @escaping (Element) -> Void)
-    -> DatabaseCancellable
+    -> AnyDatabaseCancellable
     {
         synchronized {
             // Support for reentrancy: a shared immediate observation is
@@ -194,7 +195,7 @@ public final class SharedValueObservation<Element> {
             // Side effect
             if needsStart {
                 // Self retains the cancellable, so don't have the cancellable retain self.
-                cancellable = AnyDatabaseCancellable(startObservation(
+                cancellable = startObservation(
                     // onError
                     { [weak self] error in
                         self?.handleError(error)
@@ -202,7 +203,7 @@ public final class SharedValueObservation<Element> {
                     // onChange
                     { [weak self] element in
                         self?.handleChange(element)
-                    }))
+                    })
             } else if let result = lastResult {
                 // Notify last result as an initial value
                 scheduler.scheduleInitial {
@@ -234,7 +235,7 @@ public final class SharedValueObservation<Element> {
     ///
     ///     let cancellable = publisher.sink(
     ///         receiveCompletion: { completion in ... },
-    ///         receiveValue: { players: [Player] in
+    ///         receiveValue: { (players: [Player]) in
     ///             print("fresh players: \(players)")
     ///         })
     ///
@@ -299,7 +300,6 @@ public final class SharedValueObservation<Element> {
     }
 }
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
 extension SharedValueObservation {
     // MARK: - Asynchronous Observation
     /// The database observation, as an asynchronous sequence of
@@ -315,4 +315,3 @@ extension SharedValueObservation {
         }
     }
 }
-#endif

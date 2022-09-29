@@ -19,7 +19,7 @@ extension ValueObservation where Reducer.Value: Equatable {
 
 extension ValueReducers {
     /// See `ValueObservation.removeDuplicates()`
-    public struct RemoveDuplicates<Base: ValueReducer>: ValueReducer {
+    public struct RemoveDuplicates<Base: _ValueReducer>: _ValueReducer {
         private var base: Base
         private var previousValue: Base.Value?
         private var predicate: (Base.Value, Base.Value) -> Bool
@@ -30,13 +30,8 @@ extension ValueReducers {
         }
         
         /// :nodoc:
-        public func _fetch(_ db: Database) throws -> Base.Fetched {
-            try base._fetch(db)
-        }
-        
-        /// :nodoc:
-        public mutating func _value(_ fetched: Base.Fetched) -> Base.Value? {
-            guard let value = base._value(fetched) else {
+        public mutating func _value(_ fetched: Base.Fetched) throws -> Base.Value? {
+            guard let value = try base._value(fetched) else {
                 return nil
             }
             if let previousValue = previousValue, predicate(previousValue, value) {
@@ -46,5 +41,12 @@ extension ValueReducers {
             self.previousValue = value
             return value
         }
+    }
+}
+
+extension ValueReducers.RemoveDuplicates: _DatabaseValueReducer where Base: _DatabaseValueReducer {
+    /// :nodoc:
+    public func _fetch(_ db: Database) throws -> Base.Fetched {
+        try base._fetch(db)
     }
 }

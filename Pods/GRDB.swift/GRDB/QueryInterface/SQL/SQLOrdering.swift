@@ -1,5 +1,9 @@
 /// The type that can be used as an SQL ordering term, as described at
 /// <https://www.sqlite.org/syntax/ordering-term.html>
+///
+/// It is illegal for `SQLOrdering` to represent several ordering terms:
+///
+///     SQL("score DESC, name").sqlOrdering // illegal
 public struct SQLOrdering {
     private var impl: Impl
     
@@ -108,7 +112,8 @@ extension SQLOrdering {
         case .literal:
             fatalError("""
                 Ordering literals can't be reversed. \
-                To resolve this error, order by expression literals instead.
+                To resolve this error, order by expression literals instead. \
+                For example: order(SQL("(score + bonus)").sqlExpression)
                 """)
         }
     }

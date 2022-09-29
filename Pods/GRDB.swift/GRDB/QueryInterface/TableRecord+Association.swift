@@ -336,7 +336,7 @@ extension TableRecord {
     /// - returns: An association to the common table expression.
     public static func association<Destination>(
         to cte: CommonTableExpression<Destination>,
-        on condition: @escaping (_ left: TableAlias, _ right: TableAlias) -> SQLExpressible)
+        on condition: @escaping (_ left: TableAlias, _ right: TableAlias) -> any SQLExpressible)
     -> JoinAssociation<Self, Destination>
     {
         JoinAssociation(
@@ -435,8 +435,7 @@ extension TableRecord {
           Pivot.OriginRowDecoder == Self,
           Pivot.RowDecoder == Target.OriginRowDecoder
     {
-        let association = HasManyThroughAssociation<Self, Target.RowDecoder>(
-            _sqlAssociation: target._sqlAssociation.through(pivot._sqlAssociation))
+        let association = HasManyThroughAssociation(through: pivot, using: target)
         
         if let key = key {
             return association.forKey(key)
@@ -517,8 +516,7 @@ extension TableRecord {
           Pivot.OriginRowDecoder == Self,
           Pivot.RowDecoder == Target.OriginRowDecoder
     {
-        let association = HasOneThroughAssociation<Self, Target.RowDecoder>(
-            _sqlAssociation: target._sqlAssociation.through(pivot._sqlAssociation))
+        let association = HasOneThroughAssociation(through: pivot, using: target)
         
         if let key = key {
             return association.forKey(key)
@@ -557,7 +555,7 @@ extension TableRecord where Self: EncodableRecord {
             let destinationRelation = association
                 ._sqlAssociation
                 .with {
-                    $0.pivot.relation = $0.pivot.relation.filter { db in
+                    $0.pivot.relation = $0.pivot.relation.filterWhenConnected { db in
                         // Filter the pivot on self
                         try foreignKey
                             .joinMapping(db, from: Self.databaseTableName)

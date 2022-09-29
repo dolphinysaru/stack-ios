@@ -3,9 +3,26 @@ import Foundation
 /// A raw SQLite statement, suitable for the SQLite C API.
 public typealias SQLiteStatement = OpaquePointer
 
-extension CharacterSet {
-    /// Statements are separated by semicolons and white spaces
-    static let sqlStatementSeparators = CharacterSet(charactersIn: ";").union(.whitespacesAndNewlines)
+extension String {
+    /// SQL statements are separated by semicolons and white spaces.
+    ///
+    /// This character set is not an accurate representation of actual SQLite
+    /// separators (which do not include non-ASCII white spaces for example),
+    /// and must not be used for parsing. Its only purpose is to trim compiled
+    /// SQL statements with `String.trimmedSQLStatement`.
+    private static let sqlStatementSeparators = CharacterSet(charactersIn: ";").union(.whitespacesAndNewlines)
+    
+    /// Returns a string trimmed from SQL statement separators.
+    ///
+    /// For example:
+    ///
+    ///     // "SELECT * FROM player"
+    ///     " SELECT * FROM player;".trimmedSQLStatement
+    ///
+    /// - precondition: the input string is a successfully compiled SQL statement.
+    var trimmedSQLStatement: String {
+        trimmingCharacters(in: String.sqlStatementSeparators)
+    }
 }
 
 /// A statement represents an SQL query.
@@ -27,28 +44,30 @@ public final class Statement {
         SchedulingWatchdog.preconditionValidQueue(database)
         
         // trim white space and semicolumn for homogeneous output
-        return String(cString: sqlite3_sql(sqliteStatement))
-            .trimmingCharacters(in: .sqlStatementSeparators)
+        return String(cString: sqlite3_sql(sqliteStatement)).trimmedSQLStatement
     }
     
     /// The column names, ordered from left to right.
     public lazy var columnNames: [String] = {
         let sqliteStatement = self.sqliteStatement
-        return (0..<Int32(self.columnCount)).map { String(cString: sqlite3_column_name(sqliteStatement, $0)) }
+        return (0..<CInt(self.columnCount)).map { String(cString: sqlite3_column_name(sqliteStatement, $0)) }
     }()
     
-    // Database region is computed during statement compilation, and maybe
-    // extended for select statements compiled by QueryInterfaceRequest, in
-    // order to perform focused database observation. See
-    // SQLQueryGenerator.makeStatement(_:)
+    // The database region is reported by `sqlite3_set_authorizer`, and maybe
+    // refined in `SQLQueryGenerator.makeStatement(_:)` when we have enough
+    // information about the statement.
     /// The database region that the statement looks into.
     public internal(set) var databaseRegion = DatabaseRegion()
     
     /// If true, the database schema cache gets invalidated after this statement
-    /// is executed.
+    /// is executed (reported by `sqlite3_set_authorizer`).
     private(set) var invalidatesDatabaseSchemaCache = false
+    
+    /// The eventual effect of transactions, as reported by `sqlite3_set_authorizer`.
     private(set) var transactionEffect: TransactionEffect?
-    private(set) var databaseEventKinds: [DatabaseEventKind] = []
+    
+    /// The effects on the database (reported by `sqlite3_set_authorizer`).
+    private(set) var authorizerEventKinds: [DatabaseEventKind] = []
     
     /// Returns true if and only if the prepared statement makes no direct
     /// changes to the content of the database file.
@@ -56,6 +75,11 @@ public final class Statement {
     /// See <https://www.sqlite.org/c3ref/stmt_readonly.html>.
     public var isReadonly: Bool {
         sqlite3_stmt_readonly(sqliteStatement) != 0
+    }
+    
+    /// Returns whether the statement deletes some rows
+    var isDeleteStatement: Bool {
+        authorizerEventKinds.contains(where: \.isDelete)
     }
     
     @usableFromInline
@@ -83,28 +107,30 @@ public final class Statement {
         database: Database,
         statementStart: UnsafePointer<Int8>,
         statementEnd: UnsafeMutablePointer<UnsafePointer<Int8>?>,
-        prepFlags: Int32) throws
+        prepFlags: CUnsignedInt) throws
     {
         SchedulingWatchdog.preconditionValidQueue(database)
         
-        let authorizer = StatementCompilationAuthorizer()
+        // Reset authorizer before preparing the statement
+        let authorizer = database.authorizer
+        authorizer.reset()
+        
         var sqliteStatement: SQLiteStatement? = nil
-        let code: Int32 = database.withAuthorizer(authorizer) {
-            // sqlite3_prepare_v3 was introduced in SQLite 3.20.0 http://www.sqlite.org/changes.html#version_3_20
-            #if GRDBCUSTOMSQLITE || GRDBCIPHER
-            return sqlite3_prepare_v3(
-                database.sqliteConnection, statementStart, -1, UInt32(bitPattern: prepFlags),
+        let code: CInt
+        // sqlite3_prepare_v3 was introduced in SQLite 3.20.0 http://www.sqlite.org/changes.html#version_3_20
+#if GRDBCUSTOMSQLITE || GRDBCIPHER
+        code = sqlite3_prepare_v3(
+            database.sqliteConnection, statementStart, -1, prepFlags,
+            &sqliteStatement, statementEnd)
+#else
+        if #available(iOS 12.0, OSX 10.14, tvOS 12.0, watchOS 5.0, *) {
+            code = sqlite3_prepare_v3(
+                database.sqliteConnection, statementStart, -1, prepFlags,
                 &sqliteStatement, statementEnd)
-            #else
-            if #available(iOS 12.0, OSX 10.14, tvOS 12.0, watchOS 5.0, *) {
-                return sqlite3_prepare_v3(
-                    database.sqliteConnection, statementStart, -1, UInt32(bitPattern: prepFlags),
-                    &sqliteStatement, statementEnd)
-            } else {
-                return sqlite3_prepare_v2(database.sqliteConnection, statementStart, -1, &sqliteStatement, statementEnd)
-            }
-            #endif
+        } else {
+            code = sqlite3_prepare_v2(database.sqliteConnection, statementStart, -1, &sqliteStatement, statementEnd)
         }
+#endif
         
         guard code == SQLITE_OK else {
             throw DatabaseError(
@@ -113,30 +139,21 @@ public final class Statement {
                 sql: String(cString: statementStart))
         }
         
-        guard let statement = sqliteStatement else {
+        guard let sqliteStatement else {
             return nil
         }
         
         self.database = database
-        self.sqliteStatement = statement
+        self.sqliteStatement = sqliteStatement
         self.databaseRegion = authorizer.selectedRegion
         self.invalidatesDatabaseSchemaCache = authorizer.invalidatesDatabaseSchemaCache
         self.transactionEffect = authorizer.transactionEffect
-        self.databaseEventKinds = authorizer.databaseEventKinds
+        self.authorizerEventKinds = authorizer.databaseEventKinds
     }
     
     deinit {
         sqlite3_finalize(sqliteStatement)
     }
-    
-    final func reset() throws {
-        SchedulingWatchdog.preconditionValidQueue(database)
-        let code = sqlite3_reset(sqliteStatement)
-        guard code == SQLITE_OK else {
-            throw DatabaseError(resultCode: code, message: database.lastErrorMessage, sql: sql)
-        }
-    }
-    
     
     // MARK: Arguments
     
@@ -150,7 +167,7 @@ public final class Statement {
     
     // Returns ["id", nil", "name"] for "INSERT INTO table VALUES (:id, ?, :name)"
     fileprivate lazy var sqliteArgumentNames: [String?] = {
-        (0..<Int32(self.sqliteArgumentCount)).map {
+        (0..<CInt(self.sqliteArgumentCount)).map {
             guard let cString = sqlite3_bind_parameter_name(self.sqliteStatement, $0 + 1) else {
                 return nil
             }
@@ -218,7 +235,7 @@ public final class Statement {
         clearBindings()
         
         var valuesIterator = arguments.values.makeIterator()
-        for (index, argumentName) in zip(Int32(1)..., sqliteArgumentNames) {
+        for (index, argumentName) in zip(CInt(1)..., sqliteArgumentNames) {
             if let argumentName = argumentName, let value = arguments.namedValues[argumentName] {
                 bind(value, at: index)
             } else if let value = valuesIterator.next() {
@@ -251,13 +268,13 @@ public final class Statement {
         argumentsNeedValidation = false
         try reset()
         clearBindings()
-        for (index, dbValue) in zip(Int32(1)..., bindings) {
+        for (index, dbValue) in zip(CInt(1)..., bindings) {
             bind(dbValue, at: index)
         }
     }
     
     // 1-based index
-    func bind<T: StatementBinding>(_ value: T, at index: CInt) {
+    func bind(_ value: some StatementBinding, at index: CInt) {
         let code = value.bind(to: sqliteStatement, at: index)
         
         // It looks like sqlite3_bind_xxx() functions do not access the file system.
@@ -278,27 +295,96 @@ public final class Statement {
         }
     }
     
-    func reset(withArguments arguments: StatementArguments?) {
+    // MARK: Execution
+    
+    func reset() throws {
+        SchedulingWatchdog.preconditionValidQueue(database)
+        let code = sqlite3_reset(sqliteStatement)
+        guard code == SQLITE_OK else {
+            throw DatabaseError(resultCode: code, message: database.lastErrorMessage, sql: sql)
+        }
+    }
+    
+    func reset(withArguments arguments: StatementArguments?) throws {
         // Force arguments validity: it is a programmer error to provide
         // arguments that do not match the statement.
         if let arguments = arguments {
-            try! setArguments(arguments)
+            try setArguments(arguments)
         } else if argumentsNeedValidation {
-            try! reset()
-            try! validateArguments(self.arguments)
+            try reset()
+            try validateArguments(self.arguments)
+        }
+    }
+    
+    /// Executes the prepared statement.
+    ///
+    /// - parameter arguments: Optional statement arguments.
+    /// - throws: A DatabaseError whenever an SQLite error occurs.
+    public func execute(arguments: StatementArguments? = nil) throws {
+        try reset(withArguments: arguments)
+        try database.statementWillExecute(self)
+        
+        // Iterate all rows, since they may execute side effects.
+        while true {
+            switch sqlite3_step(sqliteStatement) {
+            case SQLITE_DONE:
+                try database.statementDidExecute(self)
+                return
+            case SQLITE_ROW:
+                break
+            case let code:
+                try database.statementDidFail(self, withResultCode: code)
+            }
+        }
+    }
+    
+    /// Calls the given closure after each successful call to `sqlite3_step()`.
+    ///
+    /// This method is slighly faster than calling `step(_:)` repeatedly, due
+    /// to the single `sqlite3_stmt_busy` check.
+    @usableFromInline
+    func forEachStep(_ body: (SQLiteStatement) throws -> Void) throws {
+        SchedulingWatchdog.preconditionValidQueue(database)
+        
+        if sqlite3_stmt_busy(sqliteStatement) == 0 {
+            try database.statementWillExecute(self)
+        }
+        
+        while true {
+            switch sqlite3_step(sqliteStatement) {
+            case SQLITE_DONE:
+                try database.statementDidExecute(self)
+                return
+            case SQLITE_ROW:
+                try body(sqliteStatement)
+            case let code:
+                try database.statementDidFail(self, withResultCode: code)
+            }
+        }
+    }
+    
+    /// Calls the given closure after one successful call to `sqlite3_step()`.
+    @usableFromInline
+    func step<T>(_ body: (SQLiteStatement) throws -> T) throws -> T? {
+        if sqlite3_stmt_busy(sqliteStatement) == 0 {
+            try database.statementWillExecute(self)
+        }
+        
+        switch sqlite3_step(sqliteStatement) {
+        case SQLITE_DONE:
+            try database.statementDidExecute(self)
+            return nil
+        case SQLITE_ROW:
+            return try body(sqliteStatement)
+        case let code:
+            try database.statementDidFail(self, withResultCode: code)
         }
     }
 }
 
-@available(*, deprecated, renamed: "Statement")
-public typealias SelectStatement = Statement
-
-@available(*, deprecated, renamed: "Statement")
-public typealias UpdateStatement = Statement
-
 extension Statement: CustomStringConvertible {
     public var description: String {
-        "SQL: \(sql), Arguments: \(arguments)"
+        SchedulingWatchdog.allows(database) ? sql : "Statement"
     }
 }
 
@@ -324,6 +410,71 @@ extension Statement {
     }
 }
 
+// MARK: - Cursors
+
+/// Implementation details of `DatabaseCursor`.
+///
+/// :nodoc:
+public protocol _DatabaseCursor: Cursor {
+    /// Reserved to `_DatabaseCursor` implementation.
+    /// Must be initialized to false.
+    var _isDone: Bool { get set }
+    
+    /// The statement iterated by the cursor
+    var _statement: Statement { get }
+    
+    /// Called after one successful call to `sqlite3_step()`. Returns the
+    /// element for the current statement step.
+    func _element(sqliteStatement: SQLiteStatement) throws -> Element
+}
+
+/// A protocol for cursors that iterate a database statement.
+public protocol DatabaseCursor: _DatabaseCursor { }
+
+// Read-only access to statement information. We don't want the user to modify
+// a statement through a cursor, in case this would mess with the cursor state.
+extension DatabaseCursor {
+    /// The SQL query
+    public var sql: String { _statement.sql }
+    
+    /// The SQL statement arguments.
+    public var arguments: StatementArguments { _statement.arguments }
+    
+    /// The column names, ordered from left to right.
+    public var columnNames: [String] { _statement.columnNames }
+    
+    /// The number of columns in the resulting rows.
+    public var columnCount: Int { _statement.columnCount }
+    
+    /// The database region that the cursor looks into.
+    public var databaseRegion: DatabaseRegion { _statement.databaseRegion }
+}
+
+extension DatabaseCursor {
+    @inlinable
+    public func next() throws -> Element? {
+        if _isDone {
+            return nil
+        }
+        if let element = try _statement.step(_element) {
+            return element
+        }
+        _isDone = true
+        return nil
+    }
+    
+    /// Specific implementation of `forEach`, for a slight performance
+    /// improvement due to the single `sqlite3_stmt_busy` check.
+    @inlinable
+    public func forEach(_ body: (Element) throws -> Void) throws {
+        if _isDone { return }
+        try _statement.forEachStep {
+            try body(_element(sqliteStatement: $0))
+        }
+        _isDone = true
+    }
+}
+
 /// A cursor that iterates a database statement without producing any value.
 /// Each call to the next() cursor method calls the sqlite3_step() C function.
 ///
@@ -334,73 +485,34 @@ extension Statement {
 ///         let cursor = statement.makeCursor()
 ///         try cursor.next()
 ///     }
-final class StatementCursor: Cursor {
-    private enum _State {
-        case idle, busy, done, failed
-    }
-    
-    /* private, internal for testability */ let _statement: Statement
-    private let _sqliteStatement: SQLiteStatement
-    private var _state = _State.idle
+final class StatementCursor: DatabaseCursor {
+    typealias Element = Void
+    let _statement: Statement
+    var _isDone = false
     
     // Use Statement.makeCursor() instead
     init(statement: Statement, arguments: StatementArguments? = nil) throws {
-        _statement = statement
-        _sqliteStatement = statement.sqliteStatement
+        self._statement = statement
         
         // Assume cursor is created for immediate iteration: reset and set arguments
-        statement.reset(withArguments: arguments)
+        try statement.reset(withArguments: arguments)
     }
     
     deinit {
-        if _state == .busy {
-            try? _statement.database.statementDidExecute(_statement)
-        }
-        
         // Statement reset fails when sqlite3_step has previously failed.
         // Just ignore reset error.
         try? _statement.reset()
     }
     
-    /// :nodoc:
-    func next() throws -> Void? {
-        switch _state {
-        case .done:
-            // make sure this instance never yields a value again, even if the
-            // statement is reset by another cursor.
-            return nil
-        case .idle:
-            guard try _statement.database.statementWillExecute(_statement) == nil else {
-                throw DatabaseError(
-                    resultCode: SQLITE_MISUSE,
-                    message: "Can't run statement that requires a customized authorizer from a cursor",
-                    sql: _statement.sql,
-                    arguments: _statement.arguments)
-            }
-            _state = .busy
-        default:
-            break
-        }
-        
-        switch sqlite3_step(_sqliteStatement) {
-        case SQLITE_DONE:
-            _state = .done
-            try _statement.database.statementDidExecute(_statement)
-            return nil
-        case SQLITE_ROW:
-            return .some(())
-        case let code:
-            _state = .failed
-            try _statement.database.statementDidFail(_statement, withResultCode: code)
-        }
-    }
+    @usableFromInline
+    func _element(sqliteStatement: SQLiteStatement) throws { }
 }
 
 // MARK: - Update Statements
 
 extension Statement {
     var releasesDatabaseLock: Bool {
-        guard let transactionEffect = transactionEffect else {
+        guard let transactionEffect else {
             return false
         }
         
@@ -416,20 +528,6 @@ extension Statement {
         default:
             return false
         }
-    }
-    
-    /// Executes the prepared statement.
-    ///
-    /// - parameter arguments: Optional statement arguments.
-    /// - throws: A DatabaseError whenever an SQLite error occurs.
-    public func execute(arguments: StatementArguments? = nil) throws {
-        SchedulingWatchdog.preconditionValidQueue(database)
-        reset(withArguments: arguments)
-        
-        // Statement does not know how to execute itself, because it does not
-        // know how to handle its errors, or if truncate optimisation should be
-        // prevented or not. Database knows.
-        try database.executeStatement(self)
     }
 }
 
@@ -525,7 +623,7 @@ public protocol StatementBinding {
 ///         .filter(sql: "team = :team", arguments: ["team": "Blue"])
 ///         .filter(sql: "score > ?", arguments: [1000])
 ///         .fetchAll(db)
-public struct StatementArguments: CustomStringConvertible, Equatable,
+public struct StatementArguments: CustomStringConvertible, Hashable,
                                   ExpressibleByArrayLiteral, ExpressibleByDictionaryLiteral
 {
     private(set) var values: [DatabaseValue]
@@ -548,12 +646,14 @@ public struct StatementArguments: CustomStringConvertible, Equatable,
     
     /// Creates statement arguments from a sequence of optional values.
     ///
-    ///     let values: [DatabaseValueConvertible?] = ["foo", 1, nil]
+    ///     let values: [(any DatabaseValueConvertible)?] = ["foo", 1, nil]
     ///     db.execute(sql: "INSERT ... (?,?,?)", arguments: StatementArguments(values))
     ///
     /// - parameter sequence: A sequence of DatabaseValueConvertible values.
     /// - returns: A StatementArguments.
-    public init<Sequence: Swift.Sequence>(_ sequence: Sequence) where Sequence.Element == DatabaseValueConvertible? {
+    public init<S>(_ sequence: S)
+    where S: Sequence, S.Element == (any DatabaseValueConvertible)?
+    {
         values = sequence.map { $0?.databaseValue ?? .null }
         namedValues = .init()
     }
@@ -565,7 +665,9 @@ public struct StatementArguments: CustomStringConvertible, Equatable,
     ///
     /// - parameter sequence: A sequence of DatabaseValueConvertible values.
     /// - returns: A StatementArguments.
-    public init<Sequence: Swift.Sequence>(_ sequence: Sequence) where Sequence.Element: DatabaseValueConvertible {
+    public init<S>(_ sequence: S)
+    where S: Sequence, S.Element: DatabaseValueConvertible
+    {
         values = sequence.map(\.databaseValue)
         namedValues = .init()
     }
@@ -596,12 +698,12 @@ public struct StatementArguments: CustomStringConvertible, Equatable,
     /// Creates statement arguments from a sequence of (key, value) dictionary,
     /// such as a dictionary.
     ///
-    ///     let values: [String: DatabaseValueConvertible?] = ["firstName": nil, "lastName": "Miller"]
+    ///     let values: [String: (any DatabaseValueConvertible)?] = ["firstName": nil, "lastName": "Miller"]
     ///     db.execute(sql: "INSERT ... (:firstName, :lastName)", arguments: StatementArguments(values))
     ///
     /// - parameter sequence: A sequence of (key, value) pairs
     /// - returns: A StatementArguments.
-    public init(_ dictionary: [String: DatabaseValueConvertible?]) {
+    public init(_ dictionary: [String: (any DatabaseValueConvertible)?]) {
         namedValues = dictionary.mapValues { $0?.databaseValue ?? .null }
         values = .init()
     }
@@ -609,13 +711,13 @@ public struct StatementArguments: CustomStringConvertible, Equatable,
     /// Creates statement arguments from a sequence of (key, value) pairs, such
     /// as a dictionary.
     ///
-    ///     let values: [String: DatabaseValueConvertible?] = ["firstName": nil, "lastName": "Miller"]
+    ///     let values: [String: (any DatabaseValueConvertible)?] = ["firstName": nil, "lastName": "Miller"]
     ///     db.execute(sql: "INSERT ... (:firstName, :lastName)", arguments: StatementArguments(values))
     ///
     /// - parameter sequence: A sequence of (key, value) pairs
     /// - returns: A StatementArguments.
-    public init<Sequence>(_ sequence: Sequence)
-    where Sequence: Swift.Sequence, Sequence.Element == (String, DatabaseValueConvertible?)
+    public init<S>(_ sequence: S)
+    where S: Sequence, S.Element == (String, (any DatabaseValueConvertible)?)
     {
         namedValues = .init(minimumCapacity: sequence.underestimatedCount)
         for (key, value) in sequence {
@@ -632,7 +734,7 @@ public struct StatementArguments: CustomStringConvertible, Equatable,
     /// - parameter dictionary: A dictionary.
     /// - returns: A StatementArguments.
     public init?(_ dictionary: [AnyHashable: Any]) {
-        var initDictionary = [String: DatabaseValueConvertible?]()
+        var initDictionary = [String: (any DatabaseValueConvertible)?]()
         for (key, value) in dictionary {
             guard let columnName = key as? String else {
                 return nil
@@ -851,7 +953,7 @@ extension StatementArguments {
     ///     try db.execute(
     ///         sql: "INSERT INTO player (name, score) VALUES (?, ?)"
     ///         arguments: arguments)
-    public init(arrayLiteral elements: DatabaseValueConvertible?...) {
+    public init(arrayLiteral elements: (any DatabaseValueConvertible)?...) {
         self.init(elements)
     }
 }
@@ -864,7 +966,7 @@ extension StatementArguments {
     ///     try db.execute(
     ///         sql: "INSERT INTO player (name, score) VALUES (:name, :score)"
     ///         arguments: arguments)
-    public init(dictionaryLiteral elements: (String, DatabaseValueConvertible?)...) {
+    public init(dictionaryLiteral elements: (String, (any DatabaseValueConvertible)?)...) {
         self.init(elements)
     }
 }
@@ -874,11 +976,11 @@ extension StatementArguments {
     /// :nodoc:
     public var description: String {
         let valuesDescriptions = values.map(\.description)
-        let namedValuesDescriptions = namedValues.map { (key, value) -> String in
+        let namedValuesDescriptions = namedValues.map { (key, value) in
             "\(String(reflecting: key)): \(value)"
         }
         return "[" + (namedValuesDescriptions + valuesDescriptions).joined(separator: ", ") + "]"
     }
 }
 
-extension StatementArguments: GRDBSendable { }
+extension StatementArguments: Sendable { }

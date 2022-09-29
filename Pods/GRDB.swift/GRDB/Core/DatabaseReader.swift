@@ -19,7 +19,7 @@ import Dispatch
 /// connection to the database. Should you have to cope with external
 /// connections, protect yourself with transactions, and be ready to setup a
 /// [busy handler](https://www.sqlite.org/c3ref/busy_handler.html).
-public protocol DatabaseReader: AnyObject, GRDBSendable {
+public protocol DatabaseReader: AnyObject, Sendable {
     
     /// The database configuration
     var configuration: Configuration { get }
@@ -178,11 +178,6 @@ public protocol DatabaseReader: AnyObject, GRDBSendable {
     ///   that would prevent establishing the read access to the database.
     func asyncRead(_ value: @escaping (Result<Database, Error>) -> Void)
     
-    /// Same as asyncRead, but without retaining self
-    ///
-    /// :nodoc:
-    func _weakAsyncRead(_ value: @escaping (Result<Database, Error>?) -> Void)
-    
     /// Synchronously executes a function that accepts a database
     /// connection, and returns its result.
     ///
@@ -286,14 +281,14 @@ public protocol DatabaseReader: AnyObject, GRDBSendable {
     /// method instead.
     ///
     /// - parameter observation: the stared observation
-    /// - returns: a TransactionObserver
+    /// - returns: a cancellable
     ///
     /// :nodoc:
     func _add<Reducer: ValueReducer>(
         observation: ValueObservation<Reducer>,
         scheduling scheduler: ValueObservationScheduler,
         onChange: @escaping (Reducer.Value) -> Void)
-    -> DatabaseCancellable
+    -> AnyDatabaseCancellable
 }
 
 extension DatabaseReader {
@@ -308,32 +303,77 @@ extension DatabaseReader {
     /// When the source is a DatabasePool, concurrent writes can happen during
     /// the backup. Those writes may, or may not, be reflected in the backup,
     /// but they won't trigger any error.
-    public func backup(to writer: DatabaseWriter) throws {
-        try writer.writeWithoutTransaction { dbDest in
-            try backup(to: dbDest)
+    ///
+    /// Usage:
+    ///
+    ///     let source: DatabaseQueue = ...
+    ///     let destination: DatabaseQueue = ...
+    ///     try source.backup(to: destination)
+    ///
+    /// When you're after progress reporting during backup, you'll want to
+    /// perform the backup in several steps. Each step copies the number of
+    /// _database pages_ you specify. See <https://www.sqlite.org/c3ref/backup_finish.html>
+    /// for more information:
+    ///
+    ///     // Backup with progress reporting
+    ///     try source.backup(
+    ///         to: destination,
+    ///         pagesPerStep: ...)
+    ///         { backupProgress in
+    ///            print("Database backup progress:", backupProgress)
+    ///         }
+    ///
+    /// The `progress` callback will be called at least once—when
+    /// `backupProgress.isCompleted == true`. If the callback throws
+    /// when `backupProgress.isCompleted == false`, the backup is aborted
+    /// and the error is rethrown.  If the callback throws when
+    /// `backupProgress.isCompleted == true`, backup completion is
+    /// unaffected and the error is silently ignored.
+    ///
+    /// See also `Database.backup()`.
+    ///
+    /// - parameters:
+    ///     - writer: The destination database.
+    ///     - pagesPerStep: The number of database pages copied on each backup
+    ///       step. By default, all pages are copied in one single step.
+    ///     - progress: An optional function that is notified of the backup
+    ///       progress.
+    /// - throws: The error thrown by `progress` if the backup is abandoned, or
+    ///   any `DatabaseError` that would happen while performing the backup.
+    public func backup(
+        to writer: some DatabaseWriter,
+        pagesPerStep: CInt = -1,
+        progress: ((DatabaseBackupProgress) throws -> Void)? = nil)
+    throws
+    {
+        try writer.writeWithoutTransaction { destDb in
+            try backup(
+                to: destDb,
+                pagesPerStep: pagesPerStep,
+                afterBackupStep: progress)
         }
     }
     
     func backup(
-        to dbDest: Database,
+        to destDb: Database,
+        pagesPerStep: CInt = -1,
         afterBackupInit: (() -> Void)? = nil,
-        afterBackupStep: (() -> Void)? = nil)
+        afterBackupStep: ((DatabaseBackupProgress) throws -> Void)? = nil)
     throws
     {
         try read { dbFrom in
-            try dbFrom.backup(
-                to: dbDest,
+            try dbFrom.backupInternal(
+                to: destDb,
+                pagesPerStep: pagesPerStep,
                 afterBackupInit: afterBackupInit,
                 afterBackupStep: afterBackupStep)
         }
     }
 }
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
 extension DatabaseReader {
     // MARK: - Asynchronous Database Access
     
-    // TODO: remove @escaping as soon as it is possible
     /// Asynchronously executes a read-only function that accepts a database
     /// connection, and returns its result.
     ///
@@ -380,7 +420,6 @@ extension DatabaseReader {
         }
     }
     
-    // TODO: remove @escaping as soon as it is possible
     /// Asynchronously executes a function that accepts a database connection.
     ///
     /// [**Experimental**](http://github.com/groue/GRDB.swift#what-are-experimental-features)
@@ -423,7 +462,6 @@ extension DatabaseReader {
         }
     }
 }
-#endif
 
 #if canImport(Combine)
 extension DatabaseReader {
@@ -515,29 +553,29 @@ extension DatabaseReader {
         observation: ValueObservation<Reducer>,
         scheduling scheduler: ValueObservationScheduler,
         onChange: @escaping (Reducer.Value) -> Void)
-    -> DatabaseCancellable
+    -> AnyDatabaseCancellable
     {
         if scheduler.immediateInitialValue() {
             do {
+                // Perform a reentrant read, in case the observation would be
+                // started from a database access.
                 let value = try unsafeReentrantRead { db in
                     try db.isolated(readOnly: true) {
-                        try observation.fetchValue(db)
+                        try observation.fetchInitialValue(db)
                     }
                 }
                 onChange(value)
             } catch {
                 observation.events.didFail?(error)
             }
-            return AnyDatabaseCancellable(cancel: { })
+            return AnyDatabaseCancellable(cancel: { /* nothing to cancel */ })
         } else {
             var isCancelled = false
-            _weakAsyncRead { dbResult in
-                guard !isCancelled,
-                      let dbResult = dbResult
-                else { return }
+            asyncRead { dbResult in
+                guard !isCancelled else { return }
                 
                 let result = dbResult.flatMap { db in
-                    Result { try observation.fetchValue(db) }
+                    Result { try observation.fetchInitialValue(db) }
                 }
                 
                 scheduler.schedule {
@@ -559,10 +597,10 @@ extension DatabaseReader {
 /// Instances of AnyDatabaseReader forward their methods to an arbitrary
 /// underlying database reader.
 public final class AnyDatabaseReader: DatabaseReader {
-    private let base: DatabaseReader
+    private let base: any DatabaseReader
     
     /// Creates a database reader that wraps a base database reader.
-    public init(_ base: DatabaseReader) {
+    public init(_ base: some DatabaseReader) {
         self.base = base
     }
     
@@ -591,11 +629,6 @@ public final class AnyDatabaseReader: DatabaseReader {
         base.asyncRead(value)
     }
     
-    /// :nodoc:
-    public func _weakAsyncRead(_ value: @escaping (Result<Database, Error>?) -> Void) {
-        base._weakAsyncRead(value)
-    }
-    
     @_disfavoredOverload // SR-15150 Async overloading in protocol implementation fails
     public func unsafeRead<T>(_ value: (Database) throws -> T) throws -> T {
         try base.unsafeRead(value)
@@ -616,7 +649,7 @@ public final class AnyDatabaseReader: DatabaseReader {
         observation: ValueObservation<Reducer>,
         scheduling scheduler: ValueObservationScheduler,
         onChange: @escaping (Reducer.Value) -> Void)
-    -> DatabaseCancellable
+    -> AnyDatabaseCancellable
     {
         base._add(
             observation: observation,

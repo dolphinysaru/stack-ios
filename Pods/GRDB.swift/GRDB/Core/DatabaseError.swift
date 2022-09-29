@@ -116,17 +116,22 @@ public struct ResultCode: RawRepresentable, Equatable, CustomStringConvertible {
     public static let SQLITE_IOERR_BEGIN_ATOMIC      = ResultCode(rawValue: (SQLITE_IOERR.rawValue | (29<<8)))
     public static let SQLITE_IOERR_COMMIT_ATOMIC     = ResultCode(rawValue: (SQLITE_IOERR.rawValue | (30<<8)))
     public static let SQLITE_IOERR_ROLLBACK_ATOMIC   = ResultCode(rawValue: (SQLITE_IOERR.rawValue | (31<<8)))
+    public static let SQLITE_IOERR_DATA              = ResultCode(rawValue: (SQLITE_IOERR.rawValue | (32<<8)))
+    public static let SQLITE_IOERR_CORRUPTFS         = ResultCode(rawValue: (SQLITE_IOERR.rawValue | (33<<8)))
     public static let SQLITE_LOCKED_SHAREDCACHE      = ResultCode(rawValue: (SQLITE_LOCKED.rawValue |  (1<<8)))
     public static let SQLITE_LOCKED_VTAB             = ResultCode(rawValue: (SQLITE_LOCKED.rawValue |  (2<<8)))
     public static let SQLITE_BUSY_RECOVERY           = ResultCode(rawValue: (SQLITE_BUSY.rawValue |  (1<<8)))
     public static let SQLITE_BUSY_SNAPSHOT           = ResultCode(rawValue: (SQLITE_BUSY.rawValue |  (2<<8)))
+    public static let SQLITE_BUSY_TIMEOUT            = ResultCode(rawValue: (SQLITE_BUSY.rawValue |  (3<<8)))
     public static let SQLITE_CANTOPEN_NOTEMPDIR      = ResultCode(rawValue: (SQLITE_CANTOPEN.rawValue | (1<<8)))
     public static let SQLITE_CANTOPEN_ISDIR          = ResultCode(rawValue: (SQLITE_CANTOPEN.rawValue | (2<<8)))
     public static let SQLITE_CANTOPEN_FULLPATH       = ResultCode(rawValue: (SQLITE_CANTOPEN.rawValue | (3<<8)))
     public static let SQLITE_CANTOPEN_CONVPATH       = ResultCode(rawValue: (SQLITE_CANTOPEN.rawValue | (4<<8)))
     public static let SQLITE_CANTOPEN_DIRTYWAL       = ResultCode(rawValue: (SQLITE_CANTOPEN.rawValue | (5<<8))) /* Not Used */
+    public static let SQLITE_CANTOPEN_SYMLINK        = ResultCode(rawValue: (SQLITE_CANTOPEN.rawValue | (6<<8)))
     public static let SQLITE_CORRUPT_VTAB            = ResultCode(rawValue: (SQLITE_CORRUPT.rawValue | (1<<8)))
     public static let SQLITE_CORRUPT_SEQUENCE        = ResultCode(rawValue: (SQLITE_CORRUPT.rawValue | (2<<8)))
+    public static let SQLITE_CORRUPT_INDEX           = ResultCode(rawValue: (SQLITE_CORRUPT.rawValue | (3<<8)))
     public static let SQLITE_READONLY_RECOVERY       = ResultCode(rawValue: (SQLITE_READONLY.rawValue | (1<<8)))
     public static let SQLITE_READONLY_CANTLOCK       = ResultCode(rawValue: (SQLITE_READONLY.rawValue | (2<<8)))
     public static let SQLITE_READONLY_ROLLBACK       = ResultCode(rawValue: (SQLITE_READONLY.rawValue | (3<<8)))
@@ -144,11 +149,14 @@ public struct ResultCode: RawRepresentable, Equatable, CustomStringConvertible {
     public static let SQLITE_CONSTRAINT_UNIQUE       = ResultCode(rawValue: (SQLITE_CONSTRAINT.rawValue | (8<<8)))
     public static let SQLITE_CONSTRAINT_VTAB         = ResultCode(rawValue: (SQLITE_CONSTRAINT.rawValue | (9<<8)))
     public static let SQLITE_CONSTRAINT_ROWID        = ResultCode(rawValue: (SQLITE_CONSTRAINT.rawValue | (10<<8)))
+    public static let SQLITE_CONSTRAINT_PINNED       = ResultCode(rawValue: (SQLITE_CONSTRAINT.rawValue | (11<<8)))
+    public static let SQLITE_CONSTRAINT_DATATYPE     = ResultCode(rawValue: (SQLITE_CONSTRAINT.rawValue | (12<<8)))
     public static let SQLITE_NOTICE_RECOVER_WAL      = ResultCode(rawValue: (SQLITE_NOTICE.rawValue | (1<<8)))
     public static let SQLITE_NOTICE_RECOVER_ROLLBACK = ResultCode(rawValue: (SQLITE_NOTICE.rawValue | (2<<8)))
     public static let SQLITE_WARNING_AUTOINDEX       = ResultCode(rawValue: (SQLITE_WARNING.rawValue | (1<<8)))
     public static let SQLITE_AUTH_USER               = ResultCode(rawValue: (SQLITE_AUTH.rawValue | (1<<8)))
     public static let SQLITE_OK_LOAD_PERMANENTLY     = ResultCode(rawValue: (SQLITE_OK.rawValue | (1<<8)))
+    public static let SQLITE_OK_SYMLINK              = ResultCode(rawValue: (SQLITE_OK.rawValue | (2<<8)))
     // swiftlint:enable operator_usage_whitespace line_length
 }
 
@@ -189,7 +197,7 @@ extension ResultCode {
     }
 }
 
-extension ResultCode: GRDBSendable { }
+extension ResultCode: Sendable { }
 
 /// DatabaseError wraps an SQLite error.
 public struct DatabaseError: Error, CustomStringConvertible, CustomNSError {
@@ -233,17 +241,31 @@ public struct DatabaseError: Error, CustomStringConvertible, CustomNSError {
     /// The query arguments that yielded the error (if relevant).
     public let arguments: StatementArguments?
     
-    /// Creates a Database Error
+    /// See Configuration.publicStatementArguments
+    var publicStatementArguments: Bool
+    
+    /// Creates a DatabaseError.
+    ///
+    /// - parameters:
+    ///     - resultCode: A ResultCode (defaults to .SQLITE_ERROR).
+    ///     - message: An eventual error message. If nil, the error message is
+    ///       derived from the result code.
+    ///     - sql: An eventual SQL string.
+    ///     - arguments: Eventual Statement arguments.
+    ///     - publicStatementArguments: If false (the default), statement
+    ///       arguments are not visible in the error's `description` property.
     public init(
         resultCode: ResultCode = .SQLITE_ERROR,
         message: String? = nil,
         sql: String? = nil,
-        arguments: StatementArguments? = nil)
+        arguments: StatementArguments? = nil,
+        publicStatementArguments: Bool = false)
     {
         self.extendedResultCode = resultCode
         self.message = message ?? resultCode.errorString
         self.sql = sql
         self.arguments = arguments
+        self.publicStatementArguments = publicStatementArguments
     }
     
     /// Creates a Database Error with a raw CInt result code.
@@ -251,8 +273,31 @@ public struct DatabaseError: Error, CustomStringConvertible, CustomNSError {
     /// This initializer is not public because library user is not supposed to
     /// be exposed to raw result codes.
     @usableFromInline
-    init(resultCode: CInt, message: String? = nil, sql: String? = nil, arguments: StatementArguments? = nil) {
-        self.init(resultCode: ResultCode(rawValue: resultCode), message: message, sql: sql, arguments: arguments)
+    init(resultCode: CInt, message: String? = nil, sql: String? = nil) {
+        self.init(
+            resultCode: ResultCode(rawValue: resultCode),
+            message: message,
+            sql: sql)
+    }
+    
+    /// Creates a Database Error with a raw CInt result code.
+    ///
+    /// This initializer is not public because library user is not supposed to
+    /// be exposed to raw result codes.
+    @usableFromInline
+    init(
+        resultCode: CInt,
+        message: String? = nil,
+        sql: String? = nil,
+        arguments: StatementArguments?,
+        publicStatementArguments: Bool)
+    {
+        self.init(
+            resultCode: ResultCode(rawValue: resultCode),
+            message: message,
+            sql: sql,
+            arguments: arguments,
+            publicStatementArguments: publicStatementArguments)
     }
     
     static func noSuchTable(_ tableName: String) -> Self {
@@ -333,17 +378,22 @@ extension DatabaseError {
     public static let SQLITE_IOERR_BEGIN_ATOMIC = ResultCode.SQLITE_IOERR_BEGIN_ATOMIC
     public static let SQLITE_IOERR_COMMIT_ATOMIC = ResultCode.SQLITE_IOERR_COMMIT_ATOMIC
     public static let SQLITE_IOERR_ROLLBACK_ATOMIC = ResultCode.SQLITE_IOERR_ROLLBACK_ATOMIC
+    public static let SQLITE_IOERR_DATA = ResultCode.SQLITE_IOERR_DATA
+    public static let SQLITE_IOERR_CORRUPTFS = ResultCode.SQLITE_IOERR_CORRUPTFS
     public static let SQLITE_LOCKED_SHAREDCACHE = ResultCode.SQLITE_LOCKED_SHAREDCACHE
     public static let SQLITE_LOCKED_VTAB = ResultCode.SQLITE_LOCKED_VTAB
     public static let SQLITE_BUSY_RECOVERY = ResultCode.SQLITE_BUSY_RECOVERY
     public static let SQLITE_BUSY_SNAPSHOT = ResultCode.SQLITE_BUSY_SNAPSHOT
+    public static let SQLITE_BUSY_TIMEOUT = ResultCode.SQLITE_BUSY_TIMEOUT
     public static let SQLITE_CANTOPEN_NOTEMPDIR = ResultCode.SQLITE_CANTOPEN_NOTEMPDIR
     public static let SQLITE_CANTOPEN_ISDIR = ResultCode.SQLITE_CANTOPEN_ISDIR
     public static let SQLITE_CANTOPEN_FULLPATH = ResultCode.SQLITE_CANTOPEN_FULLPATH
     public static let SQLITE_CANTOPEN_CONVPATH = ResultCode.SQLITE_CANTOPEN_CONVPATH
     public static let SQLITE_CANTOPEN_DIRTYWAL = ResultCode.SQLITE_CANTOPEN_DIRTYWAL
+    public static let SQLITE_CANTOPEN_SYMLINK = ResultCode.SQLITE_CANTOPEN_SYMLINK
     public static let SQLITE_CORRUPT_VTAB = ResultCode.SQLITE_CORRUPT_VTAB
     public static let SQLITE_CORRUPT_SEQUENCE = ResultCode.SQLITE_CORRUPT_SEQUENCE
+    public static let SQLITE_CORRUPT_INDEX = ResultCode.SQLITE_CORRUPT_INDEX
     public static let SQLITE_READONLY_RECOVERY = ResultCode.SQLITE_READONLY_RECOVERY
     public static let SQLITE_READONLY_CANTLOCK = ResultCode.SQLITE_READONLY_CANTLOCK
     public static let SQLITE_READONLY_ROLLBACK = ResultCode.SQLITE_READONLY_ROLLBACK
@@ -361,11 +411,14 @@ extension DatabaseError {
     public static let SQLITE_CONSTRAINT_UNIQUE = ResultCode.SQLITE_CONSTRAINT_UNIQUE
     public static let SQLITE_CONSTRAINT_VTAB = ResultCode.SQLITE_CONSTRAINT_VTAB
     public static let SQLITE_CONSTRAINT_ROWID = ResultCode.SQLITE_CONSTRAINT_ROWID
+    public static let SQLITE_CONSTRAINT_PINNED = ResultCode.SQLITE_CONSTRAINT_PINNED
+    public static let SQLITE_CONSTRAINT_DATATYPE = ResultCode.SQLITE_CONSTRAINT_DATATYPE
     public static let SQLITE_NOTICE_RECOVER_WAL = ResultCode.SQLITE_NOTICE_RECOVER_WAL
     public static let SQLITE_NOTICE_RECOVER_ROLLBACK = ResultCode.SQLITE_NOTICE_RECOVER_ROLLBACK
     public static let SQLITE_WARNING_AUTOINDEX = ResultCode.SQLITE_WARNING_AUTOINDEX
     public static let SQLITE_AUTH_USER = ResultCode.SQLITE_AUTH_USER
     public static let SQLITE_OK_LOAD_PERMANENTLY = ResultCode.SQLITE_OK_LOAD_PERMANENTLY
+    public static let SQLITE_OK_SYMLINK = ResultCode.SQLITE_OK_SYMLINK
 }
 
 extension DatabaseError {
@@ -388,8 +441,44 @@ extension DatabaseError {
 
 // CustomStringConvertible
 extension DatabaseError {
-    /// :nodoc:
+    /// The error description.
+    ///
+    /// For example:
+    ///
+    ///     SQLite error 19: NOT NULL constraint failed: player.score
+    ///     - while executing `UPDATE player SET score = ? WHERE email = ?
+    ///
+    /// The format of the error description may change between GRDB releases,
+    /// without notice: don't have your application rely on any specific format.
     public var description: String {
+        var description = "SQLite error \(resultCode.rawValue)"
+        if let message = message {
+            description += ": \(message)"
+        }
+        if let sql = sql {
+            description += " - while executing `\(sql)`"
+        }
+        if publicStatementArguments, let arguments = arguments, !arguments.isEmpty {
+            description += " with arguments \(arguments)"
+        }
+        return description
+    }
+    
+    /// The error description, where bound parameters, if present, are visible.
+    ///
+    /// For example:
+    ///
+    ///     SQLite error 19: NOT NULL constraint failed: player.score
+    ///     - while executing `UPDATE player SET score = ? WHERE email = ?
+    ///     with arguments [nil, "arthur@example.com"]
+    ///
+    /// The format of the error description may change between GRDB releases,
+    /// without notice: don't have your application rely on any specific format.
+    ///
+    /// - warning: It is your responsibility to prevent sensitive
+    ///   information from leaking in unexpected locations, so use this
+    ///   property with care.
+    public var expandedDescription: String {
         var description = "SQLite error \(resultCode.rawValue)"
         if let message = message {
             description += ": \(message)"
@@ -417,5 +506,11 @@ extension DatabaseError {
     
     /// NSError bridging: the user-info dictionary.
     /// :nodoc:
-    public var errorUserInfo: [String: Any] { [NSLocalizedDescriptionKey: description] }
+    public var errorUserInfo: [String: Any] {
+        var userInfo = [NSLocalizedDescriptionKey: description]
+        if let message = message {
+            userInfo[NSLocalizedFailureReasonErrorKey] = message
+        }
+        return userInfo
+    }
 }
