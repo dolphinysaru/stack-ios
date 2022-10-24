@@ -62,6 +62,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         GADMobileAds.sharedInstance().start(completionHandler: nil)
         
+        if CloudDataManager.sharedInstance.isCloudEnabled() {
+            CloudDataManager.sharedInstance.createDirICloud()
+            
+            let isExist = CloudDataManager.sharedInstance.isExistCloudFile()
+            if isExist {
+                CloudDataManager.sharedInstance.copyFileToLocal()
+            }
+        }
+        
         let isSetCategory = UserDefaults.standard.bool(forKey: "is_initial_category")
         if !UserDefaults.standard.bool(forKey: "is_migrate_appgroup_1") && isSetCategory {
             try? AppDatabase.migrateAppGroup()

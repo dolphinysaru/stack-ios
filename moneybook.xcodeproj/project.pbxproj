@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1905A711290627B600338EB9 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1905A710290627B600338EB9 /* CloudDataManager.swift */; };
+		1905A71229062DCC00338EB9 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1905A710290627B600338EB9 /* CloudDataManager.swift */; };
 		194060BD279EE2720028F4F1 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194060BC279EE2720028F4F1 /* HeaderView.swift */; };
 		194060C0279EE9F80028F4F1 /* CategoryAddViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194060BE279EE9F80028F4F1 /* CategoryAddViewController.swift */; };
 		194060C1279EE9F80028F4F1 /* CategoryAddViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 194060BF279EE9F80028F4F1 /* CategoryAddViewController.xib */; };
@@ -178,6 +180,7 @@
 /* Begin PBXFileReference section */
 		0B0D61F1AFC02A4A7B644527 /* Pods-moneybook.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moneybook.debug.xcconfig"; path = "Target Support Files/Pods-moneybook/Pods-moneybook.debug.xcconfig"; sourceTree = "<group>"; };
 		0D5A1AEF8EC2E2D5E14FA3B0 /* Pods_ShortcutWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShortcutWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1905A710290627B600338EB9 /* CloudDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudDataManager.swift; sourceTree = "<group>"; };
 		194060BC279EE2720028F4F1 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		194060BE279EE9F80028F4F1 /* CategoryAddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryAddViewController.swift; sourceTree = "<group>"; };
 		194060BF279EE9F80028F4F1 /* CategoryAddViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryAddViewController.xib; sourceTree = "<group>"; };
@@ -569,6 +572,7 @@
 				19B00DEB27818D080016F543 /* AppDatebase+Category.swift */,
 				1994F410278338A8003DFBCE /* AppDatabase+Item.swift */,
 				19B00DDE27817C430016F543 /* CurrencyManager.swift */,
+				1905A710290627B600338EB9 /* CloudDataManager.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -972,6 +976,7 @@
 				19B2ACF0278DC1FB005B5472 /* ItemMemoTableViewCell.swift in Sources */,
 				194060BD279EE2720028F4F1 /* HeaderView.swift in Sources */,
 				19B2ACE8278DC0BF005B5472 /* ItemTitleTableViewCell.swift in Sources */,
+				1905A711290627B600338EB9 /* CloudDataManager.swift in Sources */,
 				19B2ACDB278D768A005B5472 /* ItemListTableViewCell.swift in Sources */,
 				19B00DD22781427F0016F543 /* Device.swift in Sources */,
 				1994F41E2783482A003DFBCE /* PlainCircularProgressBar.swift in Sources */,
@@ -1033,6 +1038,7 @@
 				19B9A09D27D05A010001A69B /* AppDatebase+Category.swift in Sources */,
 				19B9A09F27D05B170001A69B /* Category.swift in Sources */,
 				19B9A09727D059CD0001A69B /* Budget.swift in Sources */,
+				1905A71229062DCC00338EB9 /* CloudDataManager.swift in Sources */,
 				19B9A09A27D059EC0001A69B /* NumberFormatter.swift in Sources */,
 				19B9A08B27D04F700001A69B /* ShortcutWidget.swift in Sources */,
 				19B9A09C27D059FD0001A69B /* AppDatabase.swift in Sources */,
@@ -1251,7 +1257,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.3;
+				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1285,7 +1291,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.3;
+				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

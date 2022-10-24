@@ -19,11 +19,11 @@ class AppDatabase {
     private var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
         
-        #if DEBUG
+#if DEBUG
         // Speed up development by nuking the database when migrations change
         // See https://github.com/groue/GRDB.swift/blob/master/Documentation/Migrations.md#the-erasedatabaseonschemachange-option
         migrator.eraseDatabaseOnSchemaChange = true
-        #endif
+#endif
         
         migrator.registerMigration("createItem") { db in
             try db.create(table: "item", body: { t in
@@ -49,7 +49,7 @@ class AppDatabase {
                 t.column("visible", .boolean).notNull()
             })
         }
-                
+        
         return migrator
     }
 }
@@ -80,6 +80,21 @@ extension AppDatabase {
         }
     }
     
+    static func dbUrl() -> URL {
+        do {
+            let fileManager = FileManager()
+            let folderURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)!
+            try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            
+            // Connect to a database on disk
+            // See https://github.com/groue/GRDB.swift/blob/master/README.md#database-connections
+            let dbURL = folderURL.appendingPathComponent("db.sqlite")
+            return dbURL
+        } catch {
+            fatalError("Unresolved error \(error)")
+        }
+    }
+
     private static func makeShared() -> AppDatabase {
         do {
             // Create a folder for storing the SQLite database, as well as
@@ -87,18 +102,17 @@ extension AppDatabase {
             // operations (https://sqlite.org/tempfiles.html).
             let fileManager = FileManager()
             let folderURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)!
-//                .url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-//                .appendingPathComponent("database", isDirectory: true)
             try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true)
             
             // Connect to a database on disk
             // See https://github.com/groue/GRDB.swift/blob/master/README.md#database-connections
             let dbURL = folderURL.appendingPathComponent("db.sqlite")
+            
             let dbPool = try DatabasePool(path: dbURL.path)
             
             // Create the AppDatabase
             let appDatabase = try AppDatabase(dbPool)
-                        
+            
             return appDatabase
         } catch {
             // Replace this implementation with code to handle the error appropriately.
@@ -132,7 +146,7 @@ extension AppDatabase {
             
             // Create the AppDatabase
             let appDatabase = try AppDatabase(dbPool)
-                        
+            
             return appDatabase
         } catch {
             // Replace this implementation with code to handle the error appropriately.

@@ -21,6 +21,8 @@ extension AppDatabase {
         try dbWriter.write { db in
             try item.save(db)
         }
+        
+        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
     func loadItem(_ id: Int64) throws -> Item? {

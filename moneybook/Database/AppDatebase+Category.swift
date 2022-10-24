@@ -28,6 +28,8 @@ extension AppDatabase {
         try dbWriter.write { db in
             try category.save(db)
         }
+        
+        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
     func initialCategory() throws {
@@ -37,6 +39,12 @@ extension AppDatabase {
         }
         
         UserDefaults.standard.set(true, forKey: "is_initial_category")
+        
+        let categories = try loadAllCategories()
+        if !categories.isEmpty {
+            return
+        }
+        
         try initExpenditureCategory()
         try initIncomeCategory()
         try initPaymentCategory()
