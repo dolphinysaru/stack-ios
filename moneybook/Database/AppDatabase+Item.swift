@@ -68,5 +68,7 @@ extension AppDatabase {
         try dbWriter.write { db in
             _ = try Item.deleteAll(db, ids: [id])
         }
+        
+        CloudDataManager.sharedInstance.copyFileToCloud()
     }
 }
