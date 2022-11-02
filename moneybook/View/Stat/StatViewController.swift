@@ -47,6 +47,14 @@ class StatViewController: BaseViewController {
     
     private var selectedIndex = 0
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        if isEnabledAd && RemoteConfigManager.shared.enabledInterstitial {
+            loadGAInterstitial()
+        }
+    }
+    
     @IBAction func cycleButtonAction(_ sender: Any) {
         cycleButtons.forEach {
             $0.isSelected = false
