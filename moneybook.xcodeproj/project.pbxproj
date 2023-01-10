@@ -117,6 +117,9 @@
 		19B2ACE9278DC0BF005B5472 /* ItemTitleTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 19B2ACE7278DC0BF005B5472 /* ItemTitleTableViewCell.xib */; };
 		19B2ACF0278DC1FB005B5472 /* ItemMemoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2ACEE278DC1FB005B5472 /* ItemMemoTableViewCell.swift */; };
 		19B2ACF1278DC1FB005B5472 /* ItemMemoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */; };
+		19B87423296D68FA0053885A /* SnackBarAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B87420296D68FA0053885A /* SnackBarAction.swift */; };
+		19B87424296D68FA0053885A /* SnackBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B87421296D68FA0053885A /* SnackBarController.swift */; };
+		19B87425296D68FA0053885A /* SnackBarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B87422296D68FA0053885A /* SnackBarManager.swift */; };
 		19B92E3527C4C46300E1D1F9 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */; };
 		19B92E3627C4C46300E1D1F9 /* InAppProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */; };
 		19B9A08627D04F700001A69B /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19B9A08527D04F700001A69B /* WidgetKit.framework */; };
@@ -301,6 +304,11 @@
 		19B2ACE7278DC0BF005B5472 /* ItemTitleTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemTitleTableViewCell.xib; sourceTree = "<group>"; };
 		19B2ACEE278DC1FB005B5472 /* ItemMemoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemMemoTableViewCell.swift; sourceTree = "<group>"; };
 		19B2ACEF278DC1FB005B5472 /* ItemMemoTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemMemoTableViewCell.xib; sourceTree = "<group>"; };
+		19B8741D296D625B0053885A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		19B8741E296D625C0053885A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		19B87420296D68FA0053885A /* SnackBarAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnackBarAction.swift; sourceTree = "<group>"; };
+		19B87421296D68FA0053885A /* SnackBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnackBarController.swift; sourceTree = "<group>"; };
+		19B87422296D68FA0053885A /* SnackBarManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnackBarManager.swift; sourceTree = "<group>"; };
 		19B92E3327C4C46300E1D1F9 /* IAPHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		19B92E3427C4C46300E1D1F9 /* InAppProducts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAppProducts.swift; sourceTree = "<group>"; };
 		19B9A08427D04F700001A69B /* ShortcutWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShortcutWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -526,6 +534,7 @@
 		19B00DAC278077960016F543 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				19B8741F296D68FA0053885A /* SnackBar */,
 				19B00DAD278077A30016F543 /* BaseViewController.swift */,
 				19B00DD12781427F0016F543 /* Device.swift */,
 				19B00DD3278144040016F543 /* UserDefault.swift */,
@@ -631,6 +640,16 @@
 			path = Item;
 			sourceTree = "<group>";
 		};
+		19B8741F296D68FA0053885A /* SnackBar */ = {
+			isa = PBXGroup;
+			children = (
+				19B87420296D68FA0053885A /* SnackBarAction.swift */,
+				19B87421296D68FA0053885A /* SnackBarController.swift */,
+				19B87422296D68FA0053885A /* SnackBarManager.swift */,
+			);
+			path = SnackBar;
+			sourceTree = "<group>";
+		};
 		19B92E3227C4C46300E1D1F9 /* IAP */ = {
 			isa = PBXGroup;
 			children = (
@@ -685,6 +704,7 @@
 				19B00D75278075D10016F543 /* Resources */,
 				C7EBD985B156665DE3147DA4 /* [CP] Embed Pods Frameworks */,
 				19B9A09227D04F720001A69B /* Embed App Extensions */,
+				19B8741C296D61370053885A /* Run Script - Firebase */,
 			);
 			buildRules = (
 			);
@@ -787,6 +807,7 @@
 				de,
 				"zh-Hans",
 				es,
+				ja,
 			);
 			mainGroup = 19B00D6E278075D10016F543;
 			productRefGroup = 19B00D78278075D10016F543 /* Products */;
@@ -873,6 +894,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		19B8741C296D61370053885A /* Run Script - Firebase */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Run Script - Firebase";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+		};
 		1DA0BFBE97E447E2E7EBA1BC /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -945,6 +986,7 @@
 				1994F41C2783482A003DFBCE /* GradientHorizontalProgressBar.swift in Sources */,
 				194060E127A05C770028F4F1 /* UIDevice+modelName.swift in Sources */,
 				1994F41B2783482A003DFBCE /* RotatingCircularGradientProgressBar.swift in Sources */,
+				19B87423296D68FA0053885A /* SnackBarAction.swift in Sources */,
 				19B2ACD1278C7AFB005B5472 /* BudgetReportTopTableViewCell.swift in Sources */,
 				1994F40F27833224003DFBCE /* AddItemManager.swift in Sources */,
 				1946ED01279815300056F090 /* StatDailyViewController.swift in Sources */,
@@ -995,6 +1037,7 @@
 				19B00DC327807D900016F543 /* UIImage+.swift in Sources */,
 				19B2ACCB278C213B005B5472 /* NumberFormatter.swift in Sources */,
 				19B00DB5278077D10016F543 /* StatViewController.swift in Sources */,
+				19B87425296D68FA0053885A /* SnackBarManager.swift in Sources */,
 				1994F41A2783482A003DFBCE /* PlainHorizontalProgressBar.swift in Sources */,
 				1946ED05279816AE0056F090 /* StatWeeklyViewController.swift in Sources */,
 				19B00DF02781A1FD0016F543 /* UITableView+.swift in Sources */,
@@ -1008,6 +1051,7 @@
 				19B00DAE278077A30016F543 /* BaseViewController.swift in Sources */,
 				19B00DC8278083B40016F543 /* Category.swift in Sources */,
 				194060C0279EE9F80028F4F1 /* CategoryAddViewController.swift in Sources */,
+				19B87424296D68FA0053885A /* SnackBarController.swift in Sources */,
 				19B00DEF2781A1FD0016F543 /* UICollectionView+.swift in Sources */,
 				19B00DD02780A0940016F543 /* UITextField+.swift in Sources */,
 				1946ECDB279174EB0056F090 /* DatePickerTableViewCell.swift in Sources */,
@@ -1079,6 +1123,7 @@
 				194060EA27A0E02B0028F4F1 /* de */,
 				194060EB27A0E02C0028F4F1 /* ko */,
 				194060EC27A0E02D0028F4F1 /* es */,
+				19B8741D296D625B0053885A /* ja */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -1107,6 +1152,7 @@
 				194060DD27A04DA50028F4F1 /* de */,
 				194060DE27A04F650028F4F1 /* zh-Hans */,
 				194060DF27A04F7F0028F4F1 /* es */,
+				19B8741E296D625C0053885A /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1257,7 +1303,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.2;
+				MARKETING_VERSION = 5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1291,7 +1337,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.2;
+				MARKETING_VERSION = 5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

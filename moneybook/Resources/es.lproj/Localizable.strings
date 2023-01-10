@@ -117,3 +117,7 @@
 "terms_of_use" = "Condiciones de uso";
 "privacy_policy" = "Política de privacidad";
 "widget_description" = "Agregue un widget para agregar gastos/ingresos.";
+"buy_button_title" = "Comprar";
+"success_iap" = "Compra exitosa";
+"fail_iap" = "Compra fallida";
+"snackbar_iap_message" = "¿Desea comprar la eliminación de anuncios?";

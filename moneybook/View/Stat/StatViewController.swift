@@ -114,7 +114,7 @@ class StatViewController: BaseViewController {
         let rightButton = UIBarButtonItem(image: image, style: .done, target: self, action: #selector(showChartView))
         navigationItem.rightBarButtonItem = rightButton
         
-        gaId = ga_banner_id_calendar
+        isBannerAd = true
         
         if isEnabledAd {
             gadBannerController.didReceivedAd = { [weak self] in

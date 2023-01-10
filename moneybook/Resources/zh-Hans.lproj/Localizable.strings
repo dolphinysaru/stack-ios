@@ -117,3 +117,7 @@
 "terms_of_use" = "使用条款";
 "privacy_policy" = "隐私政策";
 "widget_description" = "添加小部件以添加支出/收入。";
+"buy_button_title" = "购买";
+"success_iap" = "购买成功";
+"fail_iap" = "购买失败";
+"snackbar_iap_message" = "您想购买广告移除服务吗？";

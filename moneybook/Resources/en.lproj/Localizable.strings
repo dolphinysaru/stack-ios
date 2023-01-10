@@ -117,3 +117,7 @@
 "terms_of_use" = "Terms of Use";
 "privacy_policy" = "Privacy Policy";
 "widget_description" = "Add a widget to add Expenditure/Revenue.";
+"buy_button_title" = "Purchase";
+"success_iap" = "Purchase Success";
+"fail_iap" = "Purchase Failed";
+"snackbar_iap_message" = "Would you like to purchase Ad Removal?";

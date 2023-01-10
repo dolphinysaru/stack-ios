@@ -52,7 +52,7 @@ class PlanViewController: BaseViewController {
             self?.navigationController?.pushViewController(vc, animated: true)
         }
         
-        gaId = ga_banner_id_home
+        isBannerAd = true
     }
         
     func setupEmptyView() {

@@ -9,10 +9,48 @@
 import Foundation
 import GoogleMobileAds
 
-let ga_banner_id_home = "ca-app-pub-2613397310926695/9084785008"
-let ga_banner_id_calendar = "ca-app-pub-2613397310926695/5405394449"
-let ga_openning = "ca-app-pub-2613397310926695/8582539355"
-let ga_banner_id_setting = "ca-app-pub-2613397310926695/5405394449"
+enum Ecpm {
+    case all
+    case medium
+    case high
+}
+
+enum AdType {
+    case appOpen(_ ecpm: Ecpm)
+    case fullAddItem(_ ecpm: Ecpm)
+    case banner(_ ecpm: Ecpm)
+    
+    var id: String {
+        switch self {
+        case .appOpen(let ecpm):
+            if ecpm == .high {
+                return "ca-app-pub-2613397310926695/4216714081"
+            } else if ecpm == .medium {
+                return "ca-app-pub-2613397310926695/8614004531"
+            } else {
+                return "ca-app-pub-2613397310926695/8582539355"
+            }
+            
+        case .fullAddItem(let ecpm):
+            if ecpm == .high {
+                return "ca-app-pub-2613397310926695/9277469075"
+            } else if ecpm == .medium {
+                return "ca-app-pub-2613397310926695/2048596183"
+            } else {
+                return "ca-app-pub-2613397310926695/6807450924"
+            }
+            
+        case .banner(let ecpm):
+            if ecpm == .high {
+                return "ca-app-pub-2613397310926695/2240167874"
+            } else if ecpm == .medium {
+                return "ca-app-pub-2613397310926695/9469040763"
+            } else {
+                return "ca-app-pub-2613397310926695/9084785008"
+            }
+        }
+    }
+}
 
 class AdUtil {
     static func initGABannerView(id: String, delegate: GAdBannerController, vc: UIViewController) -> GADBannerView {

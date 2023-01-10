@@ -117,3 +117,7 @@
 "terms_of_use" = "Nutzungsbedingungen";
 "privacy_policy" = "Datenschutz-Bestimmungen";
 "widget_description" = "Fügen Sie ein Widget hinzu, um Ausgaben/Einnahmen hinzuzufügen.";
+"buy_button_title" = "Kaufen";
+"success_iap" = "Kauferfolg";
+"fail_iap" = "Kauf gescheitert";
+"snackbar_iap_message" = "Möchten Sie Ad Removal kaufen?";

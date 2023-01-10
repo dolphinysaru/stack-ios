@@ -75,7 +75,7 @@ class MoreViewController: BaseViewController {
             }
         }
         
-        gaId = ga_banner_id_setting
+        isBannerAd = true
     }
     
     private func resetBudget() {

@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var appOpenAd: GADAppOpenAd?
     var isEnterBackground = true
     let gcmMessageIDKey = "gcm.message_id"
+    var adUnitID: String = AdType.appOpen(.high).id
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -154,6 +155,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: GADFullScreenContentDelegate {
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("Ad did fail to present full screen content.")
+        retryAd()
     }
     
     /// Tells the delegate that the ad dismissed full screen content.
@@ -167,9 +169,7 @@ extension AppDelegate {
         guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
         
 #if DEBUG
-        let adUnitID = "ca-app-pub-3940256099942544/5662855259"
-#else
-        let adUnitID = ga_openning
+        adUnitID = "ca-app-pub-3940256099942544/5662855259"
 #endif
         
         appOpenAd = nil
@@ -180,6 +180,7 @@ extension AppDelegate {
                 
                 if let error = error {
                     print("Failed to load app open ad: \(error)");
+                    self.retryAd()
                     return
                 }
                 
@@ -187,6 +188,18 @@ extension AppDelegate {
                 self.appOpenAd?.fullScreenContentDelegate = self
                 self.tryToPresentAd()
             }
+    }
+    
+    func retryAd() {
+        if adUnitID == AdType.appOpen(.high).id {
+            appOpenAd = nil
+            adUnitID = AdType.appOpen(.medium).id
+            requestAppOpenAd()
+        } else if adUnitID == AdType.appOpen(.medium).id {
+            appOpenAd = nil
+            adUnitID = AdType.appOpen(.all).id
+            requestAppOpenAd()
+        }
     }
     
     func tryToPresentAd() {
