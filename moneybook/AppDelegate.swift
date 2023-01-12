@@ -11,7 +11,6 @@ import Firebase
 import GoogleMobileAds
 import AppTrackingTransparency
 import AdSupport
-import SwiftyStoreKit
 import WidgetKit
 import FirebaseMessaging
 
@@ -30,34 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let _ = InAppProducts.store
         
-        let appleValidator = AppleReceiptValidator(service: .production, sharedSecret: "8c9c6410410842d2847e94d839fe3792")
-        SwiftyStoreKit.verifyReceipt(using: appleValidator) { result in
-            switch result {
-            case .success(let receipt):
-                let productId = InAppProducts.product
-                // Verify the purchase of a Subscription
-                let purchaseResult = SwiftyStoreKit.verifySubscription(
-                    ofType: .autoRenewable, // or .nonRenewing (see below)
-                    productId: productId,
-                    inReceipt: receipt)
-                    
-                switch purchaseResult {
-                case .purchased(let expiryDate, let items):
-                    print("\(productId) is valid until \(expiryDate)\n\(items)\n")
-                    InAppProducts.store.purchasedProduct(identifier: InAppProducts.product)
-                case .expired(let expiryDate, let items):
-                    print("\(productId) is expired since \(expiryDate)\n\(items)\n")
-                    InAppProducts.store.expiredProduct(identifier: InAppProducts.product)
-                case .notPurchased:
-                    print("The user has never purchased \(productId)")
-                    InAppProducts.store.expiredProduct(identifier: InAppProducts.product)
-                }
-
-            case .error(let error):
-                print("Receipt verification failed: \(error)")
-            }
-        }
-                
         FirebaseApp.configure()
         RemoteConfigManager.shared.fetch()
         

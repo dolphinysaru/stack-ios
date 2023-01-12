@@ -179,26 +179,19 @@
 			<key>orderHint</key>
 			<integer>26</integer>
 		</dict>
-		<key>SwiftyStoreKit.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-			<key>orderHint</key>
-			<integer>27</integer>
-		</dict>
 		<key>TPInAppReceipt.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>29</integer>
+			<integer>28</integer>
 		</dict>
 		<key>Toast-Swift.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>28</integer>
+			<integer>27</integer>
 		</dict>
 		<key>nanopb.xcscheme</key>
 		<dict>

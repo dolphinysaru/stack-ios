@@ -139,7 +139,6 @@ PODS:
   - SnapKit (5.6.0)
   - Spring (1.0.6)
   - SwiftAlgorithms (1.0.0)
-  - SwiftyStoreKit (0.16.1)
   - Toast-Swift (5.0.1)
   - TPInAppReceipt (3.3.4):
     - TPInAppReceipt/Core (= 3.3.4)
@@ -158,7 +157,6 @@ DEPENDENCIES:
   - Localize-Swift
   - SnapKit
   - Spring (from `https://github.com/MengTo/Spring.git`)
-  - SwiftyStoreKit
   - Toast-Swift
   - TPInAppReceipt
 
@@ -187,7 +185,6 @@ SPEC REPOS:
     - PromisesObjC
     - SnapKit
     - SwiftAlgorithms
-    - SwiftyStoreKit
     - Toast-Swift
     - TPInAppReceipt
 
@@ -225,10 +222,9 @@ SPEC CHECKSUMS:
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
   Spring: 3d113f14575ef79aec9c5f906dfa4f5001c03254
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
-  SwiftyStoreKit: 6b9c08810269f030586dac1fae8e75871a82e84a
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   TPInAppReceipt: 75ff97f2484a463cf46c172fe7f94225612aeda1
 
-PODFILE CHECKSUM: 69db14c8954fac55c374f17025ac96d5b856664a
+PODFILE CHECKSUM: df8ffe35c04fb28589745e1b3e0f07f437b4f812
 
 COCOAPODS: 1.11.2

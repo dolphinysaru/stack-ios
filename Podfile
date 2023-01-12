@@ -19,7 +19,6 @@ target 'moneybook' do
    pod 'Toast-Swift'
    pod 'Firebase/RemoteConfig'
    pod 'Kingfisher'
-   pod 'SwiftyStoreKit'
    pod 'Spring', :git => 'https://github.com/MengTo/Spring.git'
    pod 'TPInAppReceipt'
 end
