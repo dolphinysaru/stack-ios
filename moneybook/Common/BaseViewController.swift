@@ -239,7 +239,7 @@ extension BaseViewController: GADFullScreenContentDelegate {
                 
                 DispatchQueue.main.async {
                     let cancelAction = SnackBarAction(title: "cancel".localized(), style: .cancel, handler: nil)
-                    let buyAction = SnackBarAction(title: product.localizedPrice + " " + "buy_button_title".localized(), style: .default, handler: { _ in
+                    let buyAction = SnackBarAction(title: "buy_button_title".localized() + ", " + product.localizedPrice + "/" + "month".localized(), style: .default, handler: { _ in
                         InAppProducts.store.buyProduct(product) { [weak self] success, message in
                             guard let self = self else { return }
                             let title: String
