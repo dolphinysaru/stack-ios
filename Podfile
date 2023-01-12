@@ -21,6 +21,7 @@ target 'moneybook' do
    pod 'Kingfisher'
    pod 'SwiftyStoreKit'
    pod 'Spring', :git => 'https://github.com/MengTo/Spring.git'
+   pod 'TPInAppReceipt'
 end
 
 target 'ShortcutWidgetExtension' do

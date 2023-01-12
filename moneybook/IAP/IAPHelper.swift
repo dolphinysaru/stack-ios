@@ -7,6 +7,7 @@
 
 import Foundation
 import StoreKit
+import TPInAppReceipt
 
 public typealias ProductsRequestCompletionHandler = (_ success: Bool, _ products: [SKProduct]?) -> Void
 public typealias ProductIdentifier = String
@@ -46,6 +47,23 @@ class IAPHelper: NSObject  {
         
         super.init()
         SKPaymentQueue.default().add(self)
+        
+        InAppReceipt.refresh { (error) in
+            if let err = error {
+                print(err)
+            } else {
+                let receipt = try! InAppReceipt.localReceipt()
+                if let _ = receipt.activeAutoRenewableSubscriptionPurchases(ofProductIdentifier: InAppProducts.product, forDate: Date()) {
+                    UserDefaults.standard.set(true, forKey: InAppProducts.product)
+                    self.purchasedProductIdentifiers.insert(InAppProducts.product)
+                } else {
+                    UserDefaults.standard.set(false, forKey: InAppProducts.product)
+                    if let index = self.purchasedProductIdentifiers.firstIndex(of: InAppProducts.product) {
+                        self.purchasedProductIdentifiers.remove(at: index)
+                    }
+                }
+            }
+        }
     }
     
     // App Store Connect에서 등록한 인앱결제 상품들을 가져올 때

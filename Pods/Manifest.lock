@@ -1,4 +1,5 @@
 PODS:
+  - ASN1Swift (1.2.3)
   - Charts (4.1.0):
     - Charts/Core (= 4.1.0)
   - Charts/Core (4.1.0):
@@ -140,6 +141,10 @@ PODS:
   - SwiftAlgorithms (1.0.0)
   - SwiftyStoreKit (0.16.1)
   - Toast-Swift (5.0.1)
+  - TPInAppReceipt (3.3.4):
+    - TPInAppReceipt/Core (= 3.3.4)
+  - TPInAppReceipt/Core (3.3.4):
+    - ASN1Swift (~> 1.2.3)
 
 DEPENDENCIES:
   - Charts
@@ -155,9 +160,11 @@ DEPENDENCIES:
   - Spring (from `https://github.com/MengTo/Spring.git`)
   - SwiftyStoreKit
   - Toast-Swift
+  - TPInAppReceipt
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - ASN1Swift
     - Charts
     - Firebase
     - FirebaseABTesting
@@ -182,6 +189,7 @@ SPEC REPOS:
     - SwiftAlgorithms
     - SwiftyStoreKit
     - Toast-Swift
+    - TPInAppReceipt
 
 EXTERNAL SOURCES:
   Spring:
@@ -193,6 +201,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/MengTo/Spring.git
 
 SPEC CHECKSUMS:
+  ASN1Swift: 73ba94f1d97c1c1d059d180708ad42845aeac4f9
   Charts: 354f86803d11d9c35de280587fef50d1af063978
   Firebase: f92fc551ead69c94168d36c2b26188263860acd9
   FirebaseABTesting: e6660693429b4663573c82f8d2f1041deff1753a
@@ -218,7 +227,8 @@ SPEC CHECKSUMS:
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftyStoreKit: 6b9c08810269f030586dac1fae8e75871a82e84a
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
+  TPInAppReceipt: 75ff97f2484a463cf46c172fe7f94225612aeda1
 
-PODFILE CHECKSUM: b4e379904e7df37f5326469804e979ca5d5dddc4
+PODFILE CHECKSUM: 69db14c8954fac55c374f17025ac96d5b856664a
 
 COCOAPODS: 1.11.2
