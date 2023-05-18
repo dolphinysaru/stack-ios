@@ -682,7 +682,7 @@ extension Row {
     /// ``JoinableRequest/including(optional:)`` request methods define scopes
     /// named after the key of included associations between record types.
     ///
-    /// A depth-first search is performed in all available scopes in the row,
+    /// A breadth-first search is performed in all available scopes in the row,
     /// recursively.
     ///
     /// A fatal error is raised if the scope is not available, or contains only
@@ -726,7 +726,7 @@ extension Row {
     /// ``JoinableRequest/including(optional:)`` request methods define scopes
     /// named after the key of included associations between record types.
     ///
-    /// A depth-first search is performed in all available scopes in the row,
+    /// A breadth-first search is performed in all available scopes in the row,
     /// recursively.
     ///
     /// The result is nil if the scope is not available, or contains only
@@ -879,7 +879,7 @@ extension Row {
     /// A view on the scopes tree defined by row adapters.
     ///
     /// The returned object provides an access to all available scopes in
-    /// the row, recursively. For any given scope identifier, a depth-first
+    /// the row, recursively. For any given scope identifier, a breadth-first
     /// search is performed.
     ///
     /// Row scopes can be defined manually, with ``ScopeAdapter``.
@@ -1152,8 +1152,7 @@ extension Row {
     /// Nil is returned if the scope is not available, or contains only
     /// null values.
     ///
-    /// See <https://github.com/groue/GRDB.swift/blob/master/README.md#joined-queries-support>
-    /// for more information.
+    /// See ``splittingRowAdapters(columnCounts:)`` for a sample code.
     func decodeIfPresent<Record: FetchableRecord>(
         _ type: Record.Type = Record.self,
         forKey scope: String)
@@ -1194,8 +1193,7 @@ extension Row {
     /// A fatal error is raised if the scope is not available, or contains only
     /// null values.
     ///
-    /// See <https://github.com/groue/GRDB.swift/blob/master/README.md#joined-queries-support>
-    /// for more information.
+    /// See ``splittingRowAdapters(columnCounts:)`` for a sample code.
     func decode<Record: FetchableRecord>(
         _ type: Record.Type = Record.self,
         forKey scope: String)
@@ -1366,7 +1364,7 @@ public final class RowCursor: DatabaseCursor {
         self._row = try Row(statement: statement).adapted(with: adapter, layout: statement)
         
         // Assume cursor is created for immediate iteration: reset and set arguments
-        try statement.reset(withArguments: arguments)
+        try statement.prepareExecution(withArguments: arguments)
     }
     
     deinit {

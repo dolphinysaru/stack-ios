@@ -55,7 +55,7 @@ enum AdType {
 class AdUtil {
     static func initGABannerView(id: String, delegate: GAdBannerController, vc: UIViewController) -> GADBannerView {
 //        let adSize = GADAdSizeFromCGSize(CGSize(width: 300, height: 50))
-        let gadBannerView = GADBannerView(adSize: GADAdSizeBanner)
+        let gadBannerView = GADBannerView()
         gadBannerView.delegate = delegate
         #if DEBUG
         gadBannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
@@ -64,7 +64,7 @@ class AdUtil {
         #endif
         
         gadBannerView.rootViewController = vc
-//        gadBannerView.adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(vc.view.frame.width)
+        gadBannerView.adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(vc.view.frame.width)
 //        gadBannerView.alpha = 0.0
         
         return gadBannerView

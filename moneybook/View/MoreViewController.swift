@@ -56,7 +56,7 @@ class MoreViewController: BaseViewController {
         tableView.dataSource = self
         tableView.registerNib(MoreTableViewCell.self)
         tableView.register(UINib(nibName: "FeaturedTableViewCell", bundle: nil), forCellReuseIdentifier: "FeaturedTableViewCell")
-        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 70, right: 0)
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bannerHeight + 10, right: 0)
         
         RemoteConfigManager.shared.fetchRemoteConfig(currentAppId: "1607015385") { [weak self] featured in
             self?.featuredApp = featured

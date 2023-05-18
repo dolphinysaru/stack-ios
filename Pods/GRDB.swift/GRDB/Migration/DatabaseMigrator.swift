@@ -457,7 +457,13 @@ public struct DatabaseMigrator {
                         }
                     }()
                     
-                    if try db.schema(.main) != tmpSchema {
+                    // Only compare user objects
+                    func isUserObject(_ object: SchemaObject) -> Bool {
+                        !Database.isSQLiteInternalTable(object.name) && !Database.isGRDBInternalTable(object.name)
+                    }
+                    let tmpUserSchema = tmpSchema.filter(isUserObject)
+                    let userSchema = try db.schema(.main).filter(isUserObject)
+                    if userSchema != tmpUserSchema {
                         needsErase = true
                         return .commit
                     }
@@ -490,7 +496,7 @@ extension DatabaseMigrator {
     /// - parameter writer: A DatabaseWriter.
     ///   where migrations should apply.
     /// - parameter scheduler: A Combine Scheduler.
-    @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func migratePublisher(
         _ writer: some DatabaseWriter,
         receiveOn scheduler: some Scheduler = DispatchQueue.main)
@@ -508,7 +514,7 @@ extension DatabaseMigrator {
     }
 }
 
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 extension DatabasePublishers {
     /// A publisher that migrates a database.
     ///

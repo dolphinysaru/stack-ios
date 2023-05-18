@@ -12,7 +12,7 @@
 /// // Optimized
 /// let scores = Int.fetchAll(db, sql: "SELECT score FROM player")
 ///
-/// let rows = Row.fetchCursor(db, sql: "SELECT * FROM player")
+/// let rows = try Row.fetchCursor(db, sql: "SELECT * FROM player")
 /// while let row = try rows.next() {
 ///     // Optimized
 ///     let int: Int = row[0]
@@ -215,7 +215,7 @@ where Value: DatabaseValueConvertible & StatementColumnConvertible
     
     init(statement: Statement, arguments: StatementArguments? = nil, adapter: (any RowAdapter)? = nil) throws {
         self._statement = statement
-        if let adapter = adapter {
+        if let adapter {
             // adapter may redefine the index of the leftmost column
             columnIndex = try CInt(adapter.baseColumnIndex(atIndex: 0, layout: statement))
         } else {
@@ -223,7 +223,7 @@ where Value: DatabaseValueConvertible & StatementColumnConvertible
         }
         
         // Assume cursor is created for immediate iteration: reset and set arguments
-        try statement.reset(withArguments: arguments)
+        try statement.prepareExecution(withArguments: arguments)
     }
     
     deinit {

@@ -289,14 +289,13 @@ public protocol DatabaseWriter: DatabaseReader {
     /// ```
     ///
     /// - note: Usage of this method is discouraged, because waiting on the
-    ///   returned ``DatabaseFuture`` blocks a thread. You may prefer the
-    ///   asynchronous version of this method: ``spawnConcurrentRead(_:)``.
+    ///   returned ``DatabaseFuture`` blocks a thread. You may prefer
+    ///   ``spawnConcurrentRead(_:)`` instead.
     /// - parameter value: A closure which accesses the database.
     func concurrentRead<T>(_ value: @escaping (Database) throws -> T) -> DatabaseFuture<T>
     
     // Exposed for RxGRDB and GRBCombine. Naming is not stabilized.
-    /// Schedules read-only database operations for execution, and
-    /// returns immediately.
+    /// Schedules read-only database operations for execution.
     ///
     /// - note: [**🔥 EXPERIMENTAL**](https://github.com/groue/GRDB.swift/blob/master/README.md#what-are-experimental-features)
     ///
@@ -311,7 +310,7 @@ public protocol DatabaseWriter: DatabaseReader {
     /// by the database writer.
     ///
     /// In the example below, the number of players is fetched concurrently with
-    /// the player insertion. Yet the future is guaranteed to return zero:
+    /// the player insertion. Yet it is guaranteed to return zero:
     ///
     /// ```swift
     /// try writer.writeWithoutTransaction { db in
@@ -333,6 +332,10 @@ public protocol DatabaseWriter: DatabaseReader {
     ///     try Player(...).insert(db)
     /// }
     /// ```
+    ///
+    /// - important: The database operations are executed immediately,
+    ///   or asynchronously, depending on the actual class
+    ///   of `DatabaseWriter`.
     ///
     /// - parameter value: A closure which accesses the database. Its argument
     ///   is a `Result` that provides the database connection, or the failure
@@ -516,7 +519,7 @@ extension DatabaseWriter {
     ///
     /// - Parameter filePath: file path for new database
     @_disfavoredOverload // SR-15150 Async overloading in protocol implementation fails
-    @available(OSX 10.16, iOS 14, tvOS 14, watchOS 7, *)
+    @available(iOS 14, macOS 10.16, tvOS 14, watchOS 7, *)
     public func vacuum(into filePath: String) throws {
         try writeWithoutTransaction {
             try $0.execute(sql: "VACUUM INTO ?", arguments: [filePath])
@@ -582,7 +585,7 @@ extension DatabaseWriter {
     /// - throws: The error thrown by `updates`, or any ``DatabaseError`` that
     ///   would happen while establishing the database access or committing
     ///   the transaction.
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func write<T>(_ updates: @Sendable @escaping (Database) throws -> T) async throws -> T {
         try await withUnsafeThrowingContinuation { continuation in
             asyncWrite(updates, completion: { _, result in
@@ -620,7 +623,7 @@ extension DatabaseWriter {
     ///
     /// - parameter updates: A closure which accesses the database.
     /// - throws: The error thrown by `updates`.
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func writeWithoutTransaction<T>(_ updates: @Sendable @escaping (Database) throws -> T) async throws -> T {
         try await withUnsafeThrowingContinuation { continuation in
             asyncWriteWithoutTransaction { db in
@@ -672,7 +675,7 @@ extension DatabaseWriter {
     ///
     /// - parameter updates: A closure which accesses the database.
     /// - throws: The error thrown by `updates`.
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func barrierWriteWithoutTransaction<T>(
         _ updates: @Sendable @escaping (Database) throws -> T)
     async throws -> T
@@ -687,7 +690,7 @@ extension DatabaseWriter {
     /// Erases the content of the database.
     ///
     /// - note: [**🔥 EXPERIMENTAL**](https://github.com/groue/GRDB.swift/blob/master/README.md#what-are-experimental-features)
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func erase() async throws {
         try await writeWithoutTransaction { try $0.erase() }
     }
@@ -698,7 +701,7 @@ extension DatabaseWriter {
     /// - note: [**🔥 EXPERIMENTAL**](https://github.com/groue/GRDB.swift/blob/master/README.md#what-are-experimental-features)
     ///
     /// Related SQLite documentation: <https://www.sqlite.org/lang_vacuum.html>
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func vacuum() async throws {
         try await writeWithoutTransaction { try $0.execute(sql: "VACUUM") }
     }
@@ -715,7 +718,7 @@ extension DatabaseWriter {
     /// Related SQLite documentation: <https://www.sqlite.org/lang_vacuum.html#vacuuminto>
     ///
     /// - Parameter filePath: file path for new database
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func vacuum(into filePath: String) async throws {
         try await writeWithoutTransaction {
             try $0.execute(sql: "VACUUM INTO ?", arguments: [filePath])
@@ -730,7 +733,7 @@ extension DatabaseWriter {
     /// Related SQLite documentation: <https://www.sqlite.org/lang_vacuum.html#vacuuminto>
     ///
     /// - Parameter filePath: file path for new database
-    @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func vacuum(into filePath: String) async throws {
         try await writeWithoutTransaction {
             try $0.execute(sql: "VACUUM INTO ?", arguments: [filePath])
@@ -775,7 +778,7 @@ extension DatabaseWriter {
     ///
     /// - parameter scheduler: A Combine Scheduler.
     /// - parameter updates: A closure which accesses the database.
-    @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func writePublisher<Output>(
         receiveOn scheduler: some Combine.Scheduler = DispatchQueue.main,
         updates: @escaping (Database) throws -> Output)
@@ -840,7 +843,7 @@ extension DatabaseWriter {
     /// - parameter scheduler: A Combine Scheduler.
     /// - parameter updates: A closure which writes in the database.
     /// - parameter value: A closure which reads from the database.
-    @available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     public func writePublisher<S, T, Output>(
         receiveOn scheduler: S = DispatchQueue.main,
         updates: @escaping (Database) throws -> T,
@@ -872,7 +875,7 @@ extension DatabaseWriter {
     }
 }
 
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 extension DatabasePublishers {
     /// A publisher that writes into the database.
     ///
@@ -891,7 +894,7 @@ extension DatabasePublishers {
     }
 }
 
-@available(OSX 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 extension Publisher where Failure == Error {
     fileprivate func eraseToWritePublisher() -> DatabasePublishers.Write<Output> {
         .init(upstream: self.eraseToAnyPublisher())

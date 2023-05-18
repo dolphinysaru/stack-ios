@@ -13,6 +13,8 @@ class RemoteConfigManager {
     static let shared = RemoteConfigManager()
     private var remoteConfig: RemoteConfig!
     var enabledInterstitial = false
+    var enabledOpenad = false
+    var didFetchOpenAd: ((Bool) -> Void)? = nil
     
     private func setupRemoteConfig() {
         remoteConfig = RemoteConfig.remoteConfig()
@@ -38,6 +40,11 @@ class RemoteConfigManager {
                 guard let result = try? JSONDecoder().decode(Bool.self, from: enabled) else { return }
                 print("Config fetched! \(result)")
                 self.enabledInterstitial = result
+                
+                let openad = self.remoteConfig.configValue(forKey: "enabled_openad").dataValue
+                guard let enabledOpenad = try? JSONDecoder().decode(Bool.self, from: openad) else { return }
+                self.enabledOpenad = enabledOpenad
+                self.didFetchOpenAd?(enabledOpenad)
             }
         }
     }

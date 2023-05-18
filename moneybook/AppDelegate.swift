@@ -69,6 +69,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
         application.registerForRemoteNotifications()
         
+        RemoteConfigManager.shared.didFetchOpenAd = { [weak self] in
+            if $0 {
+                self?.tryToPresentAd()
+            }
+        }
+        
         return true
     }
     
@@ -176,6 +182,7 @@ extension AppDelegate {
     func tryToPresentAd() {
         guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
         guard isEnabledAd else { return }
+        guard RemoteConfigManager.shared.enabledOpenad else { return }
         
         if let ad = appOpenAd {
             if let vc = window?.rootViewController {

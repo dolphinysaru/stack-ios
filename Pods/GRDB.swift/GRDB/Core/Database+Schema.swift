@@ -387,7 +387,7 @@ extension Database {
             return try self.table(for: table)!.hasRowID
         }
 #else
-        if #available(iOS 15.4, macOS 12.4, tvOS 15.4, watchOS 8.5, *) {
+        if #available(iOS 15.4, macOS 12.4, tvOS 15.4, watchOS 8.5, *) { // SQLite 3.37+
             return try self.table(for: table)!.hasRowID
         }
 #endif
@@ -912,7 +912,7 @@ public struct ColumnInfo: FetchableRecord {
 
 /// Information about an index.
 ///
-/// You get `ForeignKeyInfo` instances with the ``Database/indexes(on:)``
+/// You get `IndexInfo` instances with the ``Database/indexes(on:)``
 /// `Database` method.
 ///
 /// Related SQLite documentation:
@@ -1032,7 +1032,7 @@ public struct ForeignKeyViolation {
         })
         
         var description: String
-        if let foreignKey = foreignKey {
+        if let foreignKey {
             description = """
                 FOREIGN KEY constraint violation - \
                 from \(originTable)(\(foreignKey.originColumns.joined(separator: ", "))) \
@@ -1042,9 +1042,9 @@ public struct ForeignKeyViolation {
             description = "FOREIGN KEY constraint violation - from \(originTable) to \(destinationTable)"
         }
         
-        if let originRow = originRow {
+        if let originRow {
             description += ", in \(String(describing: originRow))"
-        } else if let originRowID = originRowID {
+        } else if let originRowID {
             description += ", in rowid \(originRowID)"
         }
         
@@ -1084,7 +1084,7 @@ extension ForeignKeyViolation: CustomStringConvertible {
     ///
     /// See also ``failureDescription(_:)``.
     public var description: String {
-        if let originRowID = originRowID {
+        if let originRowID {
             return """
                 FOREIGN KEY constraint violation - from \(originTable) to \(destinationTable), \
                 in rowid \(originRowID)
@@ -1313,11 +1313,33 @@ struct TableInfo: FetchableRecord {
     }
 }
 
-enum SchemaObjectType: String {
-    case index
-    case table
-    case trigger
-    case view
+/// A value in the `type` column of `sqlite_master`.
+struct SchemaObjectType: Hashable, RawRepresentable, DatabaseValueConvertible {
+    var rawValue: String
+    init(rawValue: String) {
+        self.rawValue = rawValue
+    }
+    
+    static let index = SchemaObjectType(rawValue: "index")
+    static let table = SchemaObjectType(rawValue: "table")
+    static let trigger = SchemaObjectType(rawValue: "trigger")
+    static let view = SchemaObjectType(rawValue: "view")
+}
+
+/// A row in `sqlite_master`.
+struct SchemaObject: Hashable, FetchableRecord {
+    var type: SchemaObjectType
+    var name: String
+    var tbl_name: String?
+    var sql: String?
+    
+    init(row: Row) throws {
+        // "rootpage" column is not always there: avoid using numerical indexes
+        type = row["type"]
+        name = row["name"]
+        tbl_name = row["tbl_name"]
+        sql = row["sql"]
+    }
 }
 
 /// All objects in a database schema (tables, views, indexes, triggers).
@@ -1328,7 +1350,6 @@ struct SchemaInfo: Equatable {
     /// (case-insensitive).
     func containsObjectNamed(_ name: String, ofType type: SchemaObjectType) -> Bool {
         let name = name.lowercased()
-        let type = type.rawValue
         return objects.contains {
             $0.type == type && $0.name.lowercased() == name
         }
@@ -1341,15 +1362,12 @@ struct SchemaInfo: Equatable {
     func canonicalName(_ name: String, ofType type: SchemaObjectType) -> String? {
         let name = name.lowercased()
         return objects
-            .first { $0.type == type.rawValue && $0.name.lowercased() == name }?
+            .first { $0.type == type && $0.name.lowercased() == name }?
             .name
     }
     
-    private struct SchemaObject: Codable, Hashable, FetchableRecord {
-        var type: String
-        var name: String
-        var tbl_name: String?
-        var sql: String?
+    func filter(_ isIncluded: (SchemaObject) -> Bool) -> Self {
+        SchemaInfo(objects: objects.filter(isIncluded))
     }
 }
 

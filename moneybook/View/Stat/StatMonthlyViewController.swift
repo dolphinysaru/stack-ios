@@ -37,6 +37,7 @@ class StatMonthlyViewController: BaseViewController {
         tableView.registerNib(StatSummaryTableViewCell.self)
         tableView.registerNib(BudgetReportChartTableViewCell.self)
         tableView.registerNib(ItemListTableViewCell.self)
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bannerHeight + 10, right: 0)
         
         if #available(iOS 15.0, *) {
             tableView.sectionHeaderTopPadding = 0

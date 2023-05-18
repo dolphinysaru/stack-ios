@@ -32,6 +32,7 @@ extension UIApplication {
 }
 
 class BaseViewController: UIViewController {
+    let bannerHeight = min(UIScreen.main.bounds.width / 6.4, 80)
     var gadBannerView: GADBannerView?
     var isBannerAd: Bool = false
     var gadBannerController = GAdBannerController()
@@ -178,7 +179,7 @@ class BaseViewController: UIViewController {
         gadBannerView?.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(-(tabBarController?.tabBar.frame.height ?? 0))
-            $0.height.equalTo(50)
+            $0.height.equalTo(bannerHeight)
         }
         
         gadBannerView?.load(GADRequest())
