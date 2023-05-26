@@ -13,8 +13,8 @@ class CloudDataManager {
     static let sharedInstance = CloudDataManager() // Singleton
     
     struct DocumentsDirectory {
-        static let localDocumentsURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)!
-//        static let localDocumentsURL = FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).last!
+//        static let localDocumentsURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)!
+        static let localDocumentsURL = FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).last!
         static let iCloudDocumentsURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents")
     }
     
@@ -46,7 +46,7 @@ class CloudDataManager {
             
             do {
                 try fileManager.removeItem(at: url!.appendingPathComponent(file))
-                print("Files deleted")
+                print("Files deleted \(file)")
             } catch let error as NSError {
                 print("Failed deleting files : \(error)")
             }
@@ -67,6 +67,7 @@ class CloudDataManager {
     // No data merging
     
     func copyFileToCloud() {
+        print("copyFileToCloud")
         if isCloudEnabled() {
             deleteFilesInDirectory(url: DocumentsDirectory.iCloudDocumentsURL!) // Clear all files in iCloud Doc Dir
             
@@ -76,9 +77,9 @@ class CloudDataManager {
                 
                 do {
                     try fileManager.copyItem(at: DocumentsDirectory.localDocumentsURL.appendingPathComponent(file), to: DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(file))
-                    print("Files deleted")
+                    print("Files copyItem \(file)")
                 } catch let error as NSError {
-                    print("Failed deleting files : \(error)")
+                    print("Failed copyItem files : \(error)")
                 }
             }
         }
@@ -89,6 +90,7 @@ class CloudDataManager {
     // No data merging
     
     func copyFileToLocal() {
+        print("copyFileToLocal")
         if isCloudEnabled() {
             deleteFilesInDirectory(url: DocumentsDirectory.localDocumentsURL)
             
@@ -99,9 +101,9 @@ class CloudDataManager {
                 do {
                     try fileManager.copyItem(at: DocumentsDirectory.iCloudDocumentsURL!.appendingPathComponent(file), to: DocumentsDirectory.localDocumentsURL.appendingPathComponent(file))
 
-                    print("Files deleted")
+                    print("Files copyItem \(file)")
                 } catch let error as NSError {
-                    print("Failed deleting files : \(error)")
+                    print("Failed copyItem files : \(error)")
                 }
             }
         }
