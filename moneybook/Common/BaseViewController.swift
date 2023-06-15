@@ -40,6 +40,7 @@ class BaseViewController: UIViewController {
     var interstitial: GADInterstitialAd!
     var fullAdId = AdType.fullAddItem(.high).id
     var bannerId = AdType.banner(.high).id
+    var webView: WKWebView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +61,12 @@ class BaseViewController: UIViewController {
             }
         
         NotificationCenter.default.addObserver(self, selector: #selector(removeBannerView), name: .IAPHelperPurchaseNotification, object: nil)
+        
+        RemoteConfigManager.shared.callBacks.append { [weak self] in
+            DispatchQueue.main.async {
+                self?.loadGABannerView()
+            }
+        }
     }
     
     @objc func removeBannerView() {
@@ -100,7 +107,7 @@ class BaseViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateData()
-        loadGABannerView()
+        self.loadGABannerView()
     }
     
     func updateLayout() {
@@ -162,6 +169,33 @@ class BaseViewController: UIViewController {
         return UIView.AnimationOptions(rawValue: curve)
     }
     
+    //쿠팡-관심사 기반
+//    <iframe src="https://ads-partners.coupang.com/widgets.html?id=670069&template=carousel&trackingCode=AF7673990&subId=&width=680&height=1000&tsource=" width="680" height="1000" frameborder="0" scrolling="no" referrerpolicy="unsafe-url"></iframe>
+    func loadCoupangBanner() {
+        let file = Bundle.main.path(forResource: "coupang", ofType: "html")!
+        let localHtmlString = try! String(contentsOfFile: file, encoding: .utf8)
+        
+        let height = 80
+        let width = UIScreen.main.bounds.width - 16
+        
+        let coupangIframe = String(format: "<iframe src=\"https://ads-partners.coupang.com/widgets.html?id=670069&template=carousel&trackingCode=AF7673990&subId=&width=%@&height=%@&tsource=\" width=\"%@\" height=\"%@\" frameborder=\"0\" scrolling=\"no\" referrerpolicy=\"unsafe-url\"></iframe>", "\(width)", "\(height)", "\(width)", "\(height)")
+        
+        let lastHtmlString = String(format: localHtmlString, coupangIframe)
+        
+        webView = WKWebView()
+        view.addSubview(webView!)
+        webView?.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(-(tabBarController?.tabBar.frame.height ?? 0))
+            $0.height.equalTo(90)
+        }
+        
+        webView?.scrollView.isScrollEnabled = false
+        webView?.uiDelegate = self
+        webView?.navigationDelegate = self
+        webView?.loadHTMLString(lastHtmlString, baseURL: URL(string: "https://www.naver.com")!)
+    }
+    
     func loadGABannerView() {
         guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
         
@@ -173,16 +207,27 @@ class BaseViewController: UIViewController {
             gadBannerView = nil
         }
         
-        gadBannerView = AdUtil.initGABannerView(id: bannerId, delegate: gadBannerController, vc: self)
-        gadBannerView?.delegate = self
-        view.addSubview(gadBannerView!)
-        gadBannerView?.snp.makeConstraints {
-            $0.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(-(tabBarController?.tabBar.frame.height ?? 0))
-            $0.height.equalTo(bannerHeight)
+        if webView != nil {
+            webView?.removeFromSuperview()
+            webView = nil
         }
         
-        gadBannerView?.load(GADRequest())
+        let languageCode = Locale.preferredLanguages[0]
+        
+        if RemoteConfigManager.shared.isAdmobBanner || !languageCode.lowercased().contains("ko") {
+            gadBannerView = AdUtil.initGABannerView(id: bannerId, delegate: gadBannerController, vc: self)
+            gadBannerView?.delegate = self
+            view.addSubview(gadBannerView!)
+            gadBannerView?.snp.makeConstraints {
+                $0.leading.trailing.equalToSuperview()
+                $0.bottom.equalTo(-(tabBarController?.tabBar.frame.height ?? 0))
+                $0.height.equalTo(bannerHeight)
+            }
+            
+            gadBannerView?.load(GADRequest())
+        } else if RemoteConfigManager.shared.isCoupangBanner {
+            loadCoupangBanner()
+        }
     }
 }
 
@@ -261,5 +306,18 @@ extension BaseViewController: GADFullScreenContentDelegate {
                 }
             }
         )
+    }
+}
+
+extension BaseViewController: WKNavigationDelegate, WKUIDelegate {
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        print("navigationAction.request \(navigationAction.request)")
+        
+        if navigationAction.targetFrame == nil {
+            if let url = navigationAction.request.url {
+                UIApplication.shared.open(url)
+            }
+        }
+        return nil
     }
 }

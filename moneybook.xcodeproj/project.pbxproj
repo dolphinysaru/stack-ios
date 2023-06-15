@@ -50,6 +50,9 @@
 		1946ED2B279EAC050056F090 /* CategoryEditViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1946ED29279EAC050056F090 /* CategoryEditViewController.xib */; };
 		1946ED2E279EC2A10056F090 /* CategoryEditTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1946ED2C279EC2A10056F090 /* CategoryEditTableViewCell.swift */; };
 		1946ED2F279EC2A10056F090 /* CategoryEditTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1946ED2D279EC2A10056F090 /* CategoryEditTableViewCell.xib */; };
+		1990EDDF2A3A929600123379 /* coupang.html in Resources */ = {isa = PBXBuildFile; fileRef = 1990EDDE2A3A929600123379 /* coupang.html */; };
+		1990EDE22A3A99CD00123379 /* ShoppingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1990EDE02A3A99CD00123379 /* ShoppingViewController.swift */; };
+		1990EDE32A3A99CD00123379 /* ShoppingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1990EDE12A3A99CD00123379 /* ShoppingViewController.xib */; };
 		1994F40A27832AA5003DFBCE /* InputMemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1994F40827832AA5003DFBCE /* InputMemoViewController.swift */; };
 		1994F40B27832AA5003DFBCE /* InputMemoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1994F40927832AA5003DFBCE /* InputMemoViewController.xib */; };
 		1994F40D27832DB6003DFBCE /* UIView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1994F40C27832DB6003DFBCE /* UIView+.swift */; };
@@ -232,6 +235,9 @@
 		1946ED29279EAC050056F090 /* CategoryEditViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryEditViewController.xib; sourceTree = "<group>"; };
 		1946ED2C279EC2A10056F090 /* CategoryEditTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryEditTableViewCell.swift; sourceTree = "<group>"; };
 		1946ED2D279EC2A10056F090 /* CategoryEditTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryEditTableViewCell.xib; sourceTree = "<group>"; };
+		1990EDDE2A3A929600123379 /* coupang.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = coupang.html; sourceTree = "<group>"; };
+		1990EDE02A3A99CD00123379 /* ShoppingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingViewController.swift; sourceTree = "<group>"; };
+		1990EDE12A3A99CD00123379 /* ShoppingViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShoppingViewController.xib; sourceTree = "<group>"; };
 		1994F40827832AA5003DFBCE /* InputMemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMemoViewController.swift; sourceTree = "<group>"; };
 		1994F40927832AA5003DFBCE /* InputMemoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = InputMemoViewController.xib; sourceTree = "<group>"; };
 		1994F40C27832DB6003DFBCE /* UIView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+.swift"; sourceTree = "<group>"; };
@@ -522,6 +528,8 @@
 				194060DA27A045630028F4F1 /* CurrencyEditViewController.xib */,
 				194060C2279EF1BC0028F4F1 /* InputTableViewCell.swift */,
 				194060C3279EF1BC0028F4F1 /* InputTableViewCell.xib */,
+				1990EDE02A3A99CD00123379 /* ShoppingViewController.swift */,
+				1990EDE12A3A99CD00123379 /* ShoppingViewController.xib */,
 				1946ED15279D87910056F090 /* Graph */,
 				1946ECD82791747E0056F090 /* Stat */,
 				19B2ACE1278D98A7005B5472 /* Item */,
@@ -545,6 +553,7 @@
 		19B00DBB278079C50016F543 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				1990EDDE2A3A929600123379 /* coupang.html */,
 				194060ED27A0EADA0028F4F1 /* GoogleService-Info.plist */,
 				19B00D83278075D40016F543 /* Assets.xcassets */,
 				19B00D85278075D40016F543 /* LaunchScreen.storyboard */,
@@ -847,6 +856,7 @@
 				1946ED02279815300056F090 /* StatDailyViewController.xib in Resources */,
 				19B00DDD278151050016F543 /* InputPriceViewController.xib in Resources */,
 				19B2ACE0278D848B005B5472 /* ItemDetailViewController.xib in Resources */,
+				1990EDDF2A3A929600123379 /* coupang.html in Resources */,
 				1946ECE4279178870056F090 /* StatSummaryTableViewCell.xib in Resources */,
 				19B2ACDC278D768A005B5472 /* ItemListTableViewCell.xib in Resources */,
 				19B00DD82781476F0016F543 /* PlanView.xib in Resources */,
@@ -860,6 +870,7 @@
 				1946ECDC279174EB0056F090 /* DatePickerTableViewCell.xib in Resources */,
 				1946ED0A2798182D0056F090 /* StatMonthlyViewController.xib in Resources */,
 				19B00DBE278079ED0016F543 /* Localizable.strings in Resources */,
+				1990EDE32A3A99CD00123379 /* ShoppingViewController.xib in Resources */,
 				194060C5279EF1BC0028F4F1 /* InputTableViewCell.xib in Resources */,
 				194060DC27A045630028F4F1 /* CurrencyEditViewController.xib in Resources */,
 				19B00DB6278077D10016F543 /* StatViewController.xib in Resources */,
@@ -984,6 +995,7 @@
 			files = (
 				194060DB27A045630028F4F1 /* CurrencyEditViewController.swift in Sources */,
 				1994F41C2783482A003DFBCE /* GradientHorizontalProgressBar.swift in Sources */,
+				1990EDE22A3A99CD00123379 /* ShoppingViewController.swift in Sources */,
 				194060E127A05C770028F4F1 /* UIDevice+modelName.swift in Sources */,
 				1994F41B2783482A003DFBCE /* RotatingCircularGradientProgressBar.swift in Sources */,
 				19B87423296D68FA0053885A /* SnackBarAction.swift in Sources */,
@@ -1303,7 +1315,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 5.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1337,7 +1349,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.4;
+				MARKETING_VERSION = 5.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ckmin.stack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

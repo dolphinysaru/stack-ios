@@ -75,6 +75,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
+        RemoteConfigManager.shared.callBacks.append { [weak self] in
+            guard let self = self else { return }
+            
+            let languageCode = Locale.preferredLanguages[0]
+            if !languageCode.lowercased().contains("ko") {
+                return
+            }
+            
+            if !RemoteConfigManager.shared.isShoppingTab {
+                return
+            }
+                
+            DispatchQueue.main.async {
+                if let tabBarController = self.window?.rootViewController as? UITabBarController {
+                    var vcs = tabBarController.viewControllers
+                    
+                    let shoppingViewController = ShoppingViewController(nibName: "ShoppingViewController", bundle: nil)
+                    shoppingViewController.tabBarItem = UITabBarItem(title: "쇼핑", image: UIImage(systemName: "cart"), tag: 2)
+                    let nav3 = UINavigationController(rootViewController: shoppingViewController)
+                    vcs?.insert(nav3, at: 2)
+                    tabBarController.setViewControllers(vcs, animated: true)
+                }
+            }
+        }
+        
         return true
     }
     

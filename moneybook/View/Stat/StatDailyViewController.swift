@@ -55,7 +55,7 @@ class StatDailyViewController: BaseViewController {
         tableView.registerNib(DatePickerTableViewCell.self)
         tableView.registerNib(StatSummaryTableViewCell.self)
         tableView.registerNib(BudgetReportChartTableViewCell.self)
-        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bannerHeight + 10, right: 0)
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 150, right: 0)
         
         if #available(iOS 15.0, *) {
             tableView.sectionHeaderTopPadding = 0

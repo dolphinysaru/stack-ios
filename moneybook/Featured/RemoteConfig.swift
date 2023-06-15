@@ -14,6 +14,11 @@ class RemoteConfigManager {
     private var remoteConfig: RemoteConfig!
     var enabledInterstitial = false
     var enabledOpenad = false
+    var isAdmobBanner = false
+    var isCoupangBanner = false
+    var isShoppingTab = false
+    
+    var callBacks = [() -> Void]()
     var didFetchOpenAd: ((Bool) -> Void)? = nil
     
     private func setupRemoteConfig() {
@@ -45,6 +50,14 @@ class RemoteConfigManager {
                 guard let enabledOpenad = try? JSONDecoder().decode(Bool.self, from: openad) else { return }
                 self.enabledOpenad = enabledOpenad
                 self.didFetchOpenAd?(enabledOpenad)
+                
+                self.isAdmobBanner = self.remoteConfig.configValue(forKey: "isAdmobBanner").boolValue
+                self.isCoupangBanner = self.remoteConfig.configValue(forKey: "isCoupangBanner").boolValue
+                self.isShoppingTab = self.remoteConfig.configValue(forKey: "isShoppingTab").boolValue
+                
+                self.callBacks.forEach { callback in
+                    callback()
+                }
             }
         }
     }
