@@ -41,6 +41,8 @@ class BaseViewController: UIViewController {
     var fullAdId = AdType.fullAddItem(.high).id
     var bannerId = AdType.banner(.high).id
     var webView: WKWebView?
+    var showRemoveAdsButton = false
+    var removeAdsButton: UIButton?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,8 +71,44 @@ class BaseViewController: UIViewController {
         }
     }
     
+    func addRemoveAdsButton() {
+        if !showRemoveAdsButton {
+            return
+        }
+        
+        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
+        
+        if removeAdsButton != nil {
+            removeAdsButton?.removeFromSuperview()
+            removeAdsButton = nil
+        }
+        
+        removeAdsButton = UIButton(type: .custom)
+        removeAdsButton?.setTitle("remove_ads".localized(), for: .normal)
+        removeAdsButton?.backgroundColor = .darkGray
+        removeAdsButton?.titleLabel?.textColor = .white
+        removeAdsButton?.layer.cornerRadius = 10
+        removeAdsButton?.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        removeAdsButton?.addTarget(self, action: #selector(didTapRemoveAdsButton), for: .touchUpInside)
+        
+        let rect = gadBannerView?.frame ?? .zero
+        
+        removeAdsButton?.frame = CGRect(x: view.frame.width - 105, y: rect.minY - 40, width: 100, height: 40)
+        if let button = removeAdsButton {
+            self.view.addSubview(button)
+        }
+    }
+    
+    @objc func didTapRemoveAdsButton() {
+        tabBarController?.selectedIndex = 2
+    }
+    
     @objc func removeBannerView() {
         gadBannerView?.removeFromSuperview()
+        gadBannerView = nil
+        
+        removeAdsButton?.removeFromSuperview()
+        removeAdsButton = nil
     }
     
     func loadGAInterstitial() {
@@ -102,6 +140,8 @@ class BaseViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()    
         updateLayout()
+        
+        addRemoveAdsButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {

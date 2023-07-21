@@ -120,3 +120,4 @@
 "success_iap" = "購入成功";
 "fail_iap" = "購入失敗";
 "snackbar_iap_message" = "広告の削除を購入しますか？";
+"remove_ads" = "広告を削除";

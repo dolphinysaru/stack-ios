@@ -121,3 +121,4 @@
 "success_iap" = "Kauferfolg";
 "fail_iap" = "Kauf gescheitert";
 "snackbar_iap_message" = "Möchten Sie Ad Removal kaufen?";
+"remove_ads" = "Remove ads";

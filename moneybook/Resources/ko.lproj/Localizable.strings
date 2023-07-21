@@ -121,3 +121,4 @@
 "success_iap" = "구매 성공";
 "fail_iap" = "구매 실패";
 "snackbar_iap_message" = "광고 제거를 구매하시겠습니까?";
+"remove_ads" = "광고 제거";

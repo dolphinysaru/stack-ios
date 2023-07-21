@@ -32,6 +32,7 @@ class PlanViewController: BaseViewController {
         setupPrefersLargeTitles()
         
         title = "plan_title".localized()
+        showRemoveAdsButton = true
         
         setupEmptyView()
         view.addSubview(planView)

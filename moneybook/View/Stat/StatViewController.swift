@@ -121,6 +121,8 @@ class StatViewController: BaseViewController {
                 self?.updateConstraintsOfPageVC()
             }
         }
+        
+        showRemoveAdsButton = true
     }
     
     private func updateConstraintsOfPageVC() {

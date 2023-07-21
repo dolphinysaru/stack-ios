@@ -121,3 +121,4 @@
 "success_iap" = "Purchase Success";
 "fail_iap" = "Purchase Failed";
 "snackbar_iap_message" = "Would you like to purchase Ad Removal?";
+"remove_ads" = "Remove ads";
