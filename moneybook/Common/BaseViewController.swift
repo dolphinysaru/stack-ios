@@ -38,8 +38,8 @@ class BaseViewController: UIViewController {
     var gadBannerController = GAdBannerController()
     private var observer: NSObjectProtocol?
     var interstitial: GADInterstitialAd!
-    var fullAdId = AdType.fullAddItem(.high).id
-    var bannerId = AdType.banner(.high).id
+    var fullAdId = AdType.interstitial.id
+    var bannerId = AdType.banner.id
     var webView: WKWebView?
     var showRemoveAdsButton = false
     var removeAdsButton: UIButton?
@@ -126,7 +126,6 @@ class BaseViewController: UIViewController {
                 guard let self = self else { return }
                 if let error = error {
                     print("Failed to load interstitial ad with error: \(error.localizedDescription)")
-                    self.retryAd()
                     return
                 }
                 
@@ -283,33 +282,12 @@ extension BaseViewController: GADBannerViewDelegate {
         UIView.animate(withDuration: 1, animations: {
             bannerView.alpha = 0
         })
-        
-        if bannerId == AdType.banner(.high).id {
-            bannerId = AdType.banner(.medium).id
-            loadGABannerView()
-        } else if bannerId == AdType.banner(.medium).id {
-            bannerId = AdType.banner(.all).id
-            loadGABannerView()
-        }
     }
 }
 
 extension BaseViewController: GADFullScreenContentDelegate {
-    func retryAd() {
-        if fullAdId == AdType.fullAddItem(.high).id {
-            interstitial = nil
-            fullAdId = AdType.fullAddItem(.medium).id
-            loadGAInterstitial()
-        } else if fullAdId == AdType.fullAddItem(.medium).id {
-            interstitial = nil
-            fullAdId = AdType.fullAddItem(.all).id
-            loadGAInterstitial()
-        }
-    }
-    
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("Ad did fail to present full screen content.")
-        retryAd()
     }
 
     /// Tells the delegate that the ad dismissed full screen content.

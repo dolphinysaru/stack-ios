@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var appOpenAd: GADAppOpenAd?
     var isEnterBackground = true
     let gcmMessageIDKey = "gcm.message_id"
-    var adUnitID: String = AdType.appOpen(.high).id
+    var adUnitID: String = AdType.appOpen.id
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -68,38 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             completionHandler: { _, _ in }
         )
         application.registerForRemoteNotifications()
-        
-        RemoteConfigManager.shared.didFetchOpenAd = { [weak self] in
-            if $0 {
-                self?.tryToPresentAd()
-            }
-        }
-        
-        RemoteConfigManager.shared.callBacks.append { [weak self] in
-            guard let self = self else { return }
-            
-            let languageCode = Locale.preferredLanguages[0]
-            if !languageCode.lowercased().contains("ko") {
-                return
-            }
-            
-            if !RemoteConfigManager.shared.isShoppingTab {
-                return
-            }
                 
-            DispatchQueue.main.async {
-                if let tabBarController = self.window?.rootViewController as? UITabBarController {
-                    var vcs = tabBarController.viewControllers
-                    
-                    let shoppingViewController = ShoppingViewController(nibName: "ShoppingViewController", bundle: nil)
-                    shoppingViewController.tabBarItem = UITabBarItem(title: "쇼핑", image: UIImage(systemName: "cart"), tag: 2)
-                    let nav3 = UINavigationController(rootViewController: shoppingViewController)
-                    vcs?.insert(nav3, at: 2)
-                    tabBarController.setViewControllers(vcs, animated: true)
-                }
-            }
-        }
-        
         return true
     }
     
@@ -157,7 +126,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: GADFullScreenContentDelegate {
     func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("Ad did fail to present full screen content.")
-        retryAd()
     }
     
     /// Tells the delegate that the ad dismissed full screen content.
@@ -182,7 +150,6 @@ extension AppDelegate {
                 
                 if let error = error {
                     print("Failed to load app open ad: \(error)");
-                    self.retryAd()
                     return
                 }
                 
@@ -191,19 +158,7 @@ extension AppDelegate {
                 self.tryToPresentAd()
             }
     }
-    
-    func retryAd() {
-        if adUnitID == AdType.appOpen(.high).id {
-            appOpenAd = nil
-            adUnitID = AdType.appOpen(.medium).id
-            requestAppOpenAd()
-        } else if adUnitID == AdType.appOpen(.medium).id {
-            appOpenAd = nil
-            adUnitID = AdType.appOpen(.all).id
-            requestAppOpenAd()
-        }
-    }
-    
+        
     func tryToPresentAd() {
         guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
         guard isEnabledAd else { return }

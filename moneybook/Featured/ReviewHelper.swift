@@ -16,7 +16,7 @@ struct ReviewHelper {
     static func reviewIfNeeded() {
         let launchCount = UserDefaults.standard.integer(forKey: UserDefaultsKeyLaunchCount)
         let isRequestReview = UserDefaults.standard.bool(forKey: UserDefaultsKeyShowRequestReview)
-        if launchCount > 2 && !isRequestReview {
+        if launchCount > 5 && !isRequestReview {
             UserDefaults.standard.set(true, forKey: UserDefaultsKeyShowRequestReview)
             SKStoreReviewController.requestReview()
         }
