@@ -49,10 +49,6 @@ class StatViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if isEnabledAd && RemoteConfigManager.shared.enabledInterstitial {
-            loadGAInterstitial()
-        }
     }
     
     @IBAction func cycleButtonAction(_ sender: Any) {
@@ -122,7 +118,7 @@ class StatViewController: BaseViewController {
             }
         }
         
-        showRemoveAdsButton = true
+        self.loadGABannerView()
     }
     
     private func updateConstraintsOfPageVC() {

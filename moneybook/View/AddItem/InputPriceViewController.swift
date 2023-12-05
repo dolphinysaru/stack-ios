@@ -27,10 +27,6 @@ class InputPriceViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if isEnabledAd && RemoteConfigManager.shared.enabledInterstitial {
-            loadGAInterstitial()
-        }
     }
 
     override func setupUI() {

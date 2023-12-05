@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Charts
+import DGCharts
 
 class GraphViewController: BaseViewController {
     @IBOutlet weak var tableView: UITableView!

@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Charts
+import DGCharts
 
 class BudgetReportChartTableViewCell: UITableViewCell {
     @IBOutlet weak var chartView: BarChartView!

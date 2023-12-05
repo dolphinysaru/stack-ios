@@ -16,11 +16,6 @@ class BugetReportViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-        if isEnabledAd && RemoteConfigManager.shared.enabledInterstitial {
-            loadGAInterstitial()
-        }
     }
     
     override func updateData() {

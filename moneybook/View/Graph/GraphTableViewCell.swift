@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Charts
+import DGCharts
 
 class GraphTableViewCell: UITableViewCell {
     @IBOutlet weak var chartView: PieChartView!
@@ -58,12 +58,18 @@ class GraphTableViewCell: UITableViewCell {
         
         let data = PieChartData(dataSet: set)
         
+        data.setValueFont(.systemFont(ofSize: 11, weight: .semibold))
+        data.setValueTextColor(.white)
+        
+        chartView.data = data
+        chartView.usePercentValuesEnabled = percent
+        
         if percent {
             let pFormatter = NumberFormatter()
             pFormatter.numberStyle = .percent
             pFormatter.maximumFractionDigits = 1
             pFormatter.multiplier = 1
-            pFormatter.percentSymbol = "%"
+            pFormatter.percentSymbol = " %"
             data.setValueFormatter(DefaultValueFormatter(formatter: pFormatter))
         } else {
             let pFormatter = NumberFormatter()
@@ -73,11 +79,5 @@ class GraphTableViewCell: UITableViewCell {
             pFormatter.percentSymbol = CurrencyManager.currencySymbol
             data.setValueFormatter(DefaultValueFormatter(formatter: pFormatter))
         }
-        
-        data.setValueFont(.systemFont(ofSize: 11, weight: .semibold))
-        data.setValueTextColor(.white)
-        
-        chartView.data = data
-        chartView.usePercentValuesEnabled = percent
     }
 }

@@ -39,5 +39,7 @@ class AddItemManager {
         )
         
         try? AppDatabase.shared.saveItem(&item)
+        
+        ReviewHelper.reviewIfNeeded()
     }
 }

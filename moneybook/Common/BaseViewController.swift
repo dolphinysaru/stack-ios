@@ -37,12 +37,8 @@ class BaseViewController: UIViewController {
     var isBannerAd: Bool = false
     var gadBannerController = GAdBannerController()
     private var observer: NSObjectProtocol?
-    var interstitial: GADInterstitialAd!
-    var fullAdId = AdType.interstitial.id
     var bannerId = AdType.banner.id
     var webView: WKWebView?
-    var showRemoveAdsButton = false
-    var removeAdsButton: UIButton?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,90 +59,22 @@ class BaseViewController: UIViewController {
             }
         
         NotificationCenter.default.addObserver(self, selector: #selector(removeBannerView), name: .IAPHelperPurchaseNotification, object: nil)
-        
-        RemoteConfigManager.shared.callBacks.append { [weak self] in
-            DispatchQueue.main.async {
-                self?.loadGABannerView()
-            }
-        }
     }
     
-    func addRemoveAdsButton() {
-        if !showRemoveAdsButton {
-            return
-        }
-        
-        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
-        
-        if removeAdsButton != nil {
-            removeAdsButton?.removeFromSuperview()
-            removeAdsButton = nil
-        }
-        
-        removeAdsButton = UIButton(type: .custom)
-        removeAdsButton?.setTitle("remove_ads".localized(), for: .normal)
-        removeAdsButton?.backgroundColor = .darkGray
-        removeAdsButton?.titleLabel?.textColor = .white
-        removeAdsButton?.layer.cornerRadius = 10
-        removeAdsButton?.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        removeAdsButton?.addTarget(self, action: #selector(didTapRemoveAdsButton), for: .touchUpInside)
-        
-        let rect = gadBannerView?.frame ?? .zero
-        
-        removeAdsButton?.frame = CGRect(x: view.frame.width - 105, y: rect.minY - 40, width: 100, height: 40)
-        if let button = removeAdsButton {
-            self.view.addSubview(button)
-        }
-    }
-    
-    @objc func didTapRemoveAdsButton() {
-        tabBarController?.selectedIndex = 2
-    }
     
     @objc func removeBannerView() {
         gadBannerView?.removeFromSuperview()
         gadBannerView = nil
-        
-        removeAdsButton?.removeFromSuperview()
-        removeAdsButton = nil
-    }
-    
-    func loadGAInterstitial() {
-        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
-        
-        #if DEBUG
-        fullAdId = "ca-app-pub-3940256099942544/4411468910"
-        #endif
-        
-        let request = GADRequest()
-        GADInterstitialAd.load(
-            withAdUnitID: fullAdId,
-            request: request,
-            completionHandler: { [weak self] ad, error in
-                guard let self = self else { return }
-                if let error = error {
-                    print("Failed to load interstitial ad with error: \(error.localizedDescription)")
-                    return
-                }
-                
-                self.interstitial = ad
-                self.interstitial?.fullScreenContentDelegate = self
-                self.interstitial.present(fromRootViewController: self)
-            }
-        )
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()    
         updateLayout()
-        
-        addRemoveAdsButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateData()
-        self.loadGABannerView()
     }
     
     func updateLayout() {
@@ -251,22 +179,16 @@ class BaseViewController: UIViewController {
             webView = nil
         }
         
-        let languageCode = Locale.preferredLanguages[0]
-        
-        if RemoteConfigManager.shared.isAdmobBanner || !languageCode.lowercased().contains("ko") {
-            gadBannerView = AdUtil.initGABannerView(id: bannerId, delegate: gadBannerController, vc: self)
-            gadBannerView?.delegate = self
-            view.addSubview(gadBannerView!)
-            gadBannerView?.snp.makeConstraints {
-                $0.leading.trailing.equalToSuperview()
-                $0.bottom.equalTo(-(tabBarController?.tabBar.frame.height ?? 0))
-                $0.height.equalTo(bannerHeight)
-            }
-            
-            gadBannerView?.load(GADRequest())
-        } else if RemoteConfigManager.shared.isCoupangBanner {
-            loadCoupangBanner()
+        gadBannerView = AdUtil.initGABannerView(id: bannerId, delegate: gadBannerController, vc: self)
+        gadBannerView?.delegate = self
+        view.addSubview(gadBannerView!)
+        gadBannerView?.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalTo(-(tabBarController?.tabBar.frame.height ?? 0))
+            $0.height.equalTo(bannerHeight)
         }
+        
+        gadBannerView?.load(GADRequest())
     }
 }
 

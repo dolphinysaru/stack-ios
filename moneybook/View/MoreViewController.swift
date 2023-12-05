@@ -8,7 +8,7 @@
 import UIKit
 import MessageUI
 import StoreKit
-import Toast_Swift
+import Toast
 import StoreKit
 import SafariServices
 
@@ -76,6 +76,7 @@ class MoreViewController: BaseViewController {
         }
         
         isBannerAd = true
+        self.loadGABannerView()
     }
     
     private func resetBudget() {

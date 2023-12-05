@@ -19,10 +19,6 @@ let isEnabledAd = true
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-    var appOpenAd: GADAppOpenAd?
-    var isEnterBackground = true
-    let gcmMessageIDKey = "gcm.message_id"
-    var adUnitID: String = AdType.appOpen.id
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -31,8 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         RemoteConfigManager.shared.fetch()
-        
-        GADMobileAds.sharedInstance().start(completionHandler: nil)
         
         if CloudDataManager.sharedInstance.isCloudEnabled() {
             CloudDataManager.sharedInstance.createDirICloud()
@@ -57,48 +51,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UserDefaults.standard.set(true, forKey: "is_migrate_appgroup_1")
         initViewControllers()
-        
-        Messaging.messaging().delegate = self
-        UNUserNotificationCenter.current().delegate = self
-        
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        
-        UNUserNotificationCenter.current().requestAuthorization(
-            options: authOptions,
-            completionHandler: { _, _ in }
-        )
-        application.registerForRemoteNotifications()
                 
         return true
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
-        isEnterBackground = true
+        
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         UIApplication.shared.applicationIconBadgeNumber = 0
-        ReviewHelper.reviewIfNeeded()
-        
-        if !isEnterBackground {
-            return
-        }
-        
-        isEnterBackground = false
-        appOpenAd = nil
         
         if #available(iOS 14, *) {
             ATTrackingManager.requestTrackingAuthorization(completionHandler: { [weak self] _ in
                 // Tracking authorization completed. Start loading ads here.
-                self?.tryToPresentAd()
+                
             })
-        } else {
-            tryToPresentAd()
         }
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken
+        
     }
     
     private func initViewControllers() {
@@ -120,111 +93,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let moreNV = UINavigationController(rootViewController: moreVC)
         
         tabBarController.setViewControllers([planNV, statNV, moreNV], animated: true)
-    }
-}
-
-extension AppDelegate: GADFullScreenContentDelegate {
-    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
-        print("Ad did fail to present full screen content.")
-    }
-    
-    /// Tells the delegate that the ad dismissed full screen content.
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-        print("Ad did dismiss full screen content.")
-    }
-}
-
-extension AppDelegate {
-    func requestAppOpenAd() {
-        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
-        
-#if DEBUG
-        adUnitID = "ca-app-pub-3940256099942544/5662855259"
-#endif
-        
-        appOpenAd = nil
-        GADAppOpenAd.load(
-            withAdUnitID: adUnitID,
-            request: GADRequest(),
-            orientation: UIInterfaceOrientation.portrait) { (ad, error) in
-                
-                if let error = error {
-                    print("Failed to load app open ad: \(error)");
-                    return
-                }
-                
-                self.appOpenAd = ad
-                self.appOpenAd?.fullScreenContentDelegate = self
-                self.tryToPresentAd()
-            }
-    }
-        
-    func tryToPresentAd() {
-        guard !InAppProducts.store.isProductPurchased(InAppProducts.product) else { return }
-        guard isEnabledAd else { return }
-        guard RemoteConfigManager.shared.enabledOpenad else { return }
-        
-        if let ad = appOpenAd {
-            if let vc = window?.rootViewController {
-                ad.present(fromRootViewController: vc)
-            }
-        } else {
-            requestAppOpenAd()
-        }
-    }
-}
-
-extension AppDelegate: MessagingDelegate {
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("Firebase registration token: \(String(describing: fcmToken))")
-        
-        let dataDict: [String: String] = ["token": fcmToken ?? ""]
-        NotificationCenter.default.post(
-            name: Notification.Name("FCMToken"),
-            object: nil,
-            userInfo: dataDict
-        )
-        // TODO: If necessary send token to application server.
-        // Note: This callback is fired at each app startup and whenever a new token is generated.
-    }
-}
-
-extension AppDelegate: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        
-        let userInfo = notification.request.content.userInfo
-        Messaging.messaging().appDidReceiveMessage(userInfo)
-        
-        completionHandler([.alert, .badge, .sound])
-    }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        
-        let userInfo = response.notification.request.content.userInfo
-        Messaging.messaging().appDidReceiveMessage(userInfo)
-        
-        completionHandler()
-    }
-    
-    func application(_ application: UIApplication,
-                     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
-                     -> Void) {
-        // If you are receiving a notification message while your app is in the background,
-        // this callback will not be fired till the user taps on the notification launching the application.
-        // TODO: Handle data of notification
-        
-        // With swizzling disabled you must let Messaging know about the message, for Analytics
-         Messaging.messaging().appDidReceiveMessage(userInfo)
-        
-        // Print message ID.
-        if let messageID = userInfo[gcmMessageIDKey] {
-            print("Message ID: \(messageID)")
-        }
-        
-        // Print full message.
-        print(userInfo)
-        
-        completionHandler(UIBackgroundFetchResult.newData)
     }
 }

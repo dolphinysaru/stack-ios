@@ -9,18 +9,23 @@
 import Foundation
 import StoreKit
 
-let UserDefaultsKeyLaunchCount = "UserDefaultsKeyLaunchCount"
-let UserDefaultsKeyShowRequestReview = "UserDefaultsKeyShowRequestReview"
+let UserDefaultsKeyReviewCount = "UserDefaultsKeyReviewCount"
 
 struct ReviewHelper {
     static func reviewIfNeeded() {
-        let launchCount = UserDefaults.standard.integer(forKey: UserDefaultsKeyLaunchCount)
-        let isRequestReview = UserDefaults.standard.bool(forKey: UserDefaultsKeyShowRequestReview)
-        if launchCount > 5 && !isRequestReview {
-            UserDefaults.standard.set(true, forKey: UserDefaultsKeyShowRequestReview)
-            SKStoreReviewController.requestReview()
-        }
+        let launchCount = UserDefaults.standard.integer(forKey: UserDefaultsKeyReviewCount) + 1
+        UserDefaults.standard.set(launchCount, forKey: UserDefaultsKeyReviewCount)
         
-        UserDefaults.standard.set(launchCount + 1, forKey: UserDefaultsKeyLaunchCount)
+        if launchCount == 3 {
+            if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                DispatchQueue.main.async {
+                    if #available(iOS 14.0, *) {
+                        SKStoreReviewController.requestReview(in: scene)
+                    } else {
+                        SKStoreReviewController.requestReview()
+                    }
+                }
+            }
+        }
     }
 }

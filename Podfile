@@ -10,23 +10,12 @@ target 'moneybook' do
   use_frameworks!
    pod 'GRDB.swift'
    pod 'SnapKit'
-   pod 'Charts'
-   pod 'Firebase/Analytics'
-   pod 'Firebase/Crashlytics'
-   pod 'Firebase/Messaging'
-   pod 'Google-Mobile-Ads-SDK'
-   pod 'Localize-Swift'
-   pod 'Toast-Swift'
-   pod 'Firebase/RemoteConfig'
-   pod 'Kingfisher'
    pod 'Spring', :git => 'https://github.com/MengTo/Spring.git'
-   pod 'TPInAppReceipt'
 end
 
 target 'ShortcutWidgetExtension' do
   use_frameworks!
    pod 'GRDB.swift'
-   pod 'Localize-Swift'
 end
 
 post_install do |installer|

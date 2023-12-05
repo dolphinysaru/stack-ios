@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import GoogleMobileAds
+import UserMessagingPlatform
 
 class PlanViewController: BaseViewController {
     @IBOutlet weak var emptyView: UIView!
@@ -16,6 +17,69 @@ class PlanViewController: BaseViewController {
     @IBOutlet weak var startPlanButton: UIButton!
     @IBOutlet weak var addItemButton: UIButton!
     var planView = PlanView.instanceFromNib()
+    private var isMobileAdsStartCalled = false
+    
+    func requestUMP() {
+        // Create a UMPRequestParameters object.
+        let parameters = UMPRequestParameters()
+        // Set tag for under age of consent. false means users are not under age
+        // of consent.
+        parameters.tagForUnderAgeOfConsent = false
+        
+//        ae5ec39f07c6f6a1985ac1e06b19f4c8
+//#if DEBUG
+//        let debugSettings = UMPDebugSettings()
+//        debugSettings.testDeviceIdentifiers = ["FA290B1F-F345-44F3-8E55-95DBB9BCB2DF"]
+//        debugSettings.geography = .EEA
+//        parameters.debugSettings = debugSettings
+//#endif
+        
+        // Request an update for the consent information.
+        UMPConsentInformation.sharedInstance.requestConsentInfoUpdate(with: parameters) {
+            [weak self] requestConsentError in
+            guard let self else { return }
+            
+            if let consentError = requestConsentError {
+                // Consent gathering failed.
+                return print("Error: \(consentError.localizedDescription)")
+            }
+            
+            UMPConsentForm.loadAndPresentIfRequired(from: self) { [weak self] loadAndPresentError in
+                guard let self else { return }
+                
+                if let consentError = loadAndPresentError {
+                    // Consent gathering failed.
+                    return print("Error: \(consentError.localizedDescription)")
+                }
+                
+                // Consent has been gathered.
+                if UMPConsentInformation.sharedInstance.canRequestAds {
+                    self.startGoogleMobileAdsSDK()
+                }
+            }
+        }
+        
+        // Check if you can initialize the Google Mobile Ads SDK in parallel
+        // while checking for new consent information. Consent obtained in
+        // the previous session can be used to request ads.
+        if UMPConsentInformation.sharedInstance.canRequestAds {
+            startGoogleMobileAdsSDK()
+        }
+    }
+    
+    private func startGoogleMobileAdsSDK() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            guard !self.isMobileAdsStartCalled else { return }
+            
+            self.isMobileAdsStartCalled = true
+            
+            // Initialize the Google Mobile Ads SDK.
+            GADMobileAds.sharedInstance().start()
+            
+            self.loadGABannerView()
+        }
+    }
     
     override func updateData() {
         if Budget.isSavedBudget() {
@@ -32,7 +96,6 @@ class PlanViewController: BaseViewController {
         setupPrefersLargeTitles()
         
         title = "plan_title".localized()
-        showRemoveAdsButton = true
         
         setupEmptyView()
         view.addSubview(planView)
@@ -54,6 +117,7 @@ class PlanViewController: BaseViewController {
         }
         
         isBannerAd = true
+        requestUMP()
     }
         
     func setupEmptyView() {
