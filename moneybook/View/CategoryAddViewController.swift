@@ -137,11 +137,11 @@ class CategoryAddViewController: BaseViewController {
         }
         
         if let editCategory = editCategory {
-            var category = Category(id: editCategory.id, title: name, icon: emoji, updateAt: Date(), type: categoryType, visible: true)
-            try? AppDatabase.shared.saveCategory(&category)
+            let category = Category(id: editCategory.id, title: name, icon: emoji, updateAt: Date(), type: categoryType, visible: true)
+            CoreData.shared.saveCategory(category, isNew: false)
         } else {
-            var category = Category(id: nil, title: name, icon: emoji, updateAt: Date(), type: categoryType, visible: true)
-            try? AppDatabase.shared.saveCategory(&category)
+            let category = Category(id: nil, title: name, icon: emoji, updateAt: Date(), type: categoryType, visible: true)
+            CoreData.shared.saveCategory(category)
         }
         
         didAddCategory?()

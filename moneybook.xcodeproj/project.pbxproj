@@ -21,8 +21,14 @@
 		1902CEC62B1F025100497284 /* Localize_Swift in Frameworks */ = {isa = PBXBuildFile; productRef = 1902CEC52B1F025100497284 /* Localize_Swift */; };
 		1902CEC82B1F025900497284 /* Localize_Swift in Frameworks */ = {isa = PBXBuildFile; productRef = 1902CEC72B1F025900497284 /* Localize_Swift */; };
 		1902CECC2B1F0ADD00497284 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 1902CECB2B1F0ADD00497284 /* DGCharts */; };
-		1905A711290627B600338EB9 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1905A710290627B600338EB9 /* CloudDataManager.swift */; };
-		1905A71229062DCC00338EB9 /* CloudDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1905A710290627B600338EB9 /* CloudDataManager.swift */; };
+		1902CECF2B1F18AD00497284 /* stack.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1902CECD2B1F18AD00497284 /* stack.xcdatamodeld */; };
+		1902CED12B1F1B9F00497284 /* CoreDataMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1902CED02B1F1B9F00497284 /* CoreDataMigration.swift */; };
+		1902CED32B1F244700497284 /* CoreData+Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1902CED22B1F244700497284 /* CoreData+Category.swift */; };
+		1902CED52B1F361100497284 /* CoreData+Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1902CED42B1F361100497284 /* CoreData+Item.swift */; };
+		1902CED62B1F3D4E00497284 /* CoreDataMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1902CED02B1F1B9F00497284 /* CoreDataMigration.swift */; };
+		1902CED72B1F3D5100497284 /* CoreData+Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1902CED22B1F244700497284 /* CoreData+Category.swift */; };
+		1902CED82B1F3D5300497284 /* CoreData+Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1902CED42B1F361100497284 /* CoreData+Item.swift */; };
+		1902CED92B1F3D6600497284 /* stack.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1902CECD2B1F18AD00497284 /* stack.xcdatamodeld */; };
 		194060BD279EE2720028F4F1 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194060BC279EE2720028F4F1 /* HeaderView.swift */; };
 		194060C0279EE9F80028F4F1 /* CategoryAddViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194060BE279EE9F80028F4F1 /* CategoryAddViewController.swift */; };
 		194060C1279EE9F80028F4F1 /* CategoryAddViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 194060BF279EE9F80028F4F1 /* CategoryAddViewController.xib */; };
@@ -200,7 +206,10 @@
 /* Begin PBXFileReference section */
 		0B0D61F1AFC02A4A7B644527 /* Pods-moneybook.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moneybook.debug.xcconfig"; path = "Target Support Files/Pods-moneybook/Pods-moneybook.debug.xcconfig"; sourceTree = "<group>"; };
 		0D5A1AEF8EC2E2D5E14FA3B0 /* Pods_ShortcutWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShortcutWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		1905A710290627B600338EB9 /* CloudDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudDataManager.swift; sourceTree = "<group>"; };
+		1902CECE2B1F18AD00497284 /* Item.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Item.xcdatamodel; sourceTree = "<group>"; };
+		1902CED02B1F1B9F00497284 /* CoreDataMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataMigration.swift; sourceTree = "<group>"; };
+		1902CED22B1F244700497284 /* CoreData+Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Category.swift"; sourceTree = "<group>"; };
+		1902CED42B1F361100497284 /* CoreData+Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreData+Item.swift"; sourceTree = "<group>"; };
 		194060BC279EE2720028F4F1 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		194060BE279EE9F80028F4F1 /* CategoryAddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryAddViewController.swift; sourceTree = "<group>"; };
 		194060BF279EE9F80028F4F1 /* CategoryAddViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CategoryAddViewController.xib; sourceTree = "<group>"; };
@@ -490,6 +499,7 @@
 			isa = PBXGroup;
 			children = (
 				19B9A0A027D074200001A69B /* moneybook.entitlements */,
+				1902CECD2B1F18AD00497284 /* stack.xcdatamodeld */,
 				19B92E3227C4C46300E1D1F9 /* IAP */,
 				194060D8279FFFF00028F4F1 /* GoogleAd */,
 				194060CB279FF7FD0028F4F1 /* Featured */,
@@ -618,7 +628,9 @@
 				19B00DEB27818D080016F543 /* AppDatebase+Category.swift */,
 				1994F410278338A8003DFBCE /* AppDatabase+Item.swift */,
 				19B00DDE27817C430016F543 /* CurrencyManager.swift */,
-				1905A710290627B600338EB9 /* CloudDataManager.swift */,
+				1902CED02B1F1B9F00497284 /* CoreDataMigration.swift */,
+				1902CED22B1F244700497284 /* CoreData+Category.swift */,
+				1902CED42B1F361100497284 /* CoreData+Item.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -1073,8 +1085,10 @@
 				19B00DF42781A4340016F543 /* ReuseableView.swift in Sources */,
 				19B00DE52781889D0016F543 /* CategorySelectionViewController.swift in Sources */,
 				19B00DCA278084930016F543 /* Item.swift in Sources */,
+				1902CECF2B1F18AD00497284 /* stack.xcdatamodeld in Sources */,
 				1994F41D2783482A003DFBCE /* GradientCircularProgressBar.swift in Sources */,
 				1946ED2E279EC2A10056F090 /* CategoryEditTableViewCell.swift in Sources */,
+				1902CED52B1F361100497284 /* CoreData+Item.swift in Sources */,
 				194060D1279FF7FD0028F4F1 /* FeaturedTableViewCell.swift in Sources */,
 				1946ED1C279D8A030056F090 /* GraphTableViewCell.swift in Sources */,
 				19B00DF22781A3E90016F543 /* LoadableNib.swift in Sources */,
@@ -1088,7 +1102,6 @@
 				19B2ACF0278DC1FB005B5472 /* ItemMemoTableViewCell.swift in Sources */,
 				194060BD279EE2720028F4F1 /* HeaderView.swift in Sources */,
 				19B2ACE8278DC0BF005B5472 /* ItemTitleTableViewCell.swift in Sources */,
-				1905A711290627B600338EB9 /* CloudDataManager.swift in Sources */,
 				19B2ACDB278D768A005B5472 /* ItemListTableViewCell.swift in Sources */,
 				19B00DD22781427F0016F543 /* Device.swift in Sources */,
 				1994F41E2783482A003DFBCE /* PlainCircularProgressBar.swift in Sources */,
@@ -1098,6 +1111,7 @@
 				1994F40A27832AA5003DFBCE /* InputMemoViewController.swift in Sources */,
 				1994F411278338A8003DFBCE /* AppDatabase+Item.swift in Sources */,
 				19B00DDF27817C430016F543 /* CurrencyManager.swift in Sources */,
+				1902CED32B1F244700497284 /* CoreData+Category.swift in Sources */,
 				19B00DD6278147640016F543 /* PlanView.swift in Sources */,
 				19B00D7B278075D10016F543 /* AppDelegate.swift in Sources */,
 				1946ED26279EA4950056F090 /* MoreTableViewCell.swift in Sources */,
@@ -1121,6 +1135,7 @@
 				19B00DAE278077A30016F543 /* BaseViewController.swift in Sources */,
 				19B00DC8278083B40016F543 /* Category.swift in Sources */,
 				194060C0279EE9F80028F4F1 /* CategoryAddViewController.swift in Sources */,
+				1902CED12B1F1B9F00497284 /* CoreDataMigration.swift in Sources */,
 				19B87424296D68FA0053885A /* SnackBarController.swift in Sources */,
 				19B00DEF2781A1FD0016F543 /* UICollectionView+.swift in Sources */,
 				19B00DD02780A0940016F543 /* UITextField+.swift in Sources */,
@@ -1149,11 +1164,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1902CED92B1F3D6600497284 /* stack.xcdatamodeld in Sources */,
 				19B9A09D27D05A010001A69B /* AppDatebase+Category.swift in Sources */,
 				19B9A09F27D05B170001A69B /* Category.swift in Sources */,
+				1902CED62B1F3D4E00497284 /* CoreDataMigration.swift in Sources */,
 				19B9A09727D059CD0001A69B /* Budget.swift in Sources */,
-				1905A71229062DCC00338EB9 /* CloudDataManager.swift in Sources */,
 				19B9A09A27D059EC0001A69B /* NumberFormatter.swift in Sources */,
+				1902CED72B1F3D5100497284 /* CoreData+Category.swift in Sources */,
+				1902CED82B1F3D5300497284 /* CoreData+Item.swift in Sources */,
 				19B9A08B27D04F700001A69B /* ShortcutWidget.swift in Sources */,
 				19B9A09C27D059FD0001A69B /* AppDatabase.swift in Sources */,
 				19B9A09827D059D80001A69B /* UserDefault.swift in Sources */,
@@ -1373,7 +1391,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.7;
+				MARKETING_VERSION = 6.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"sqlite3\"",
@@ -1422,7 +1440,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5.7;
+				MARKETING_VERSION = 6.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"sqlite3\"",
@@ -1783,6 +1801,19 @@
 			productName = DGCharts;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		1902CECD2B1F18AD00497284 /* stack.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				1902CECE2B1F18AD00497284 /* Item.xcdatamodel */,
+			);
+			currentVersion = 1902CECE2B1F18AD00497284 /* Item.xcdatamodel */;
+			path = stack.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 19B00D6F278075D10016F543 /* Project object */;
 }

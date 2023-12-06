@@ -26,7 +26,7 @@ struct Item: Codable, Identifiable {
     var memo: String
     
     var kind: Category? {
-        return try? AppDatabase.shared.loadCategory(self.kindId)
+        return CoreData.shared.loadCategory(self.kindId)
     }
     
     var payment: Category? {
@@ -34,7 +34,7 @@ struct Item: Codable, Identifiable {
             return nil
         }
  
-        return try? AppDatabase.shared.loadCategory(paymentId)
+        return CoreData.shared.loadCategory(paymentId)
     }
 }
 

@@ -25,8 +25,6 @@ struct CurrencyManager {
         
         let code = UserDefaults.standard.string(forKey: UserDefault.currency_code)
         UserDefaults.shared.set(code, forKey: UserDefault.currency_code)
-        
-        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
     static var currencySymbol: String {
@@ -42,20 +40,18 @@ struct CurrencyManager {
     }
     
     static func setupCurrencyIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: UserDefault.currency_is_set) else { return }
+        guard !NSUbiquitousKeyValueStore.default.bool(forKey: UserDefault.currency_is_set) else { return }
         
-        UserDefaults.standard.set(true, forKey: UserDefault.currency_is_set)
+        NSUbiquitousKeyValueStore.default.set(true, forKey: UserDefault.currency_is_set)
         
         let locale = Locale.current
         UserDefaults.shared.set(locale.currencySymbol ?? "", forKey: UserDefault.currency_symbol)
         UserDefaults.shared.set(locale.currencyCode ?? "", forKey: UserDefault.currency_code)
-        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
     static func setupCurrency(currency: Currency) {
         UserDefaults.shared.set(currency.symbol, forKey: UserDefault.currency_symbol)
         UserDefaults.shared.set(currency.code, forKey: UserDefault.currency_code)
-        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
     static var currentCurrency: Currency {

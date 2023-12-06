@@ -66,10 +66,10 @@ class ItemDetailViewController: BaseViewController {
             
     override func updateData() {
         guard let id = item.id else { return }
-        guard let item = try? AppDatabase.shared.loadItem(id) else { return }
+        guard let item = CoreData.shared.loadItem(id) else { return }
         self.item = item
         
-        if let category = try? AppDatabase.shared.loadCategory(item.kindId) {
+        if let category = CoreData.shared.loadCategory(item.kindId) {
             title = category.icon + " " + category.title
         }
         
@@ -99,7 +99,7 @@ class ItemDetailViewController: BaseViewController {
         
         let ok = UIAlertAction(title: "delete".localized(), style: .destructive) { [weak self] _ in
             guard let self = self else { return }
-            try? AppDatabase.shared.removeItem(self.item)
+            CoreData.shared.removeItem(self.item)
             Budget.syncAppGroupData()
             self.navigationController?.popViewController(animated: true)
         }
@@ -177,7 +177,7 @@ extension ItemDetailViewController: UITableViewDelegate, UITableViewDataSource {
                 return cell
             case .payment:
                 let cell = tableView.dequeueReusableCell(ItemListTableViewCell.self, forIndexPath: indexPath)
-                if let id = item.paymentId, let category = try? AppDatabase.shared.loadCategory(id) {
+                if let id = item.paymentId, let category = CoreData.shared.loadCategory(id) {
                     let image = UIImage.imageWithEmoji(emoji: category.icon, fontSize: 100, size: CGSize(width: 200, height: 200))
                     cell.updateUI(title: category.title, icon: image)
                 }

@@ -50,7 +50,7 @@ struct Budget {
     }
     
     var totalExpend: Double {
-        guard let items = try? items(types: [.expenditure]) else { return 0 }
+        let items = items(types: [.expenditure])
         return Budget.sumPriceOfItems(items)
     }
     
@@ -60,31 +60,45 @@ struct Budget {
         })
     }
     
+    static func refreshTotalExpend() {
+        let budget = Budget.load()
+        UserDefaults.shared.set(budget.totalExpend, forKey: UserDefault.budget_totalspend)
+        WidgetCenter.shared.reloadAllTimelines()
+        
+        NSUbiquitousKeyValueStore.default.set(budget.totalExpend, forKey: UserDefault.budget_totalspend)
+        NSUbiquitousKeyValueStore.default.synchronize()
+    }
+
+    static func syncIcloud() {
+        let cycleTerm = NSUbiquitousKeyValueStore.default.object(forKey: UserDefault.budget_cycle_term)
+        let cycleStartDay = NSUbiquitousKeyValueStore.default.object(forKey: UserDefault.budget_cycle_start_day)
+        let startDayOfWeek = NSUbiquitousKeyValueStore.default.object(forKey: UserDefault.budget_cycle_start_day_of_week)
+        let price = NSUbiquitousKeyValueStore.default.double(forKey: UserDefault.budget_price)
+        let isOn = NSUbiquitousKeyValueStore.default.bool(forKey: UserDefault.budget_is_on)
+        let totalExpend = NSUbiquitousKeyValueStore.default.double(forKey: UserDefault.budget_totalspend)
+        
+        UserDefaults.shared.set(cycleTerm, forKey: UserDefault.budget_cycle_term)
+        UserDefaults.shared.set(cycleStartDay, forKey: UserDefault.budget_cycle_start_day)
+        UserDefaults.shared.set(startDayOfWeek, forKey: UserDefault.budget_cycle_start_day_of_week)
+        UserDefaults.shared.set(price, forKey: UserDefault.budget_price)
+        UserDefaults.shared.set(isOn, forKey: UserDefault.budget_is_on)
+        UserDefaults.shared.set(totalExpend, forKey: UserDefault.budget_totalspend)
+    }
+    
     func save() {
         UserDefaults.shared.set(cycleTerm.rawValue, forKey: UserDefault.budget_cycle_term)
         UserDefaults.shared.set(startDay, forKey: UserDefault.budget_cycle_start_day)
         UserDefaults.shared.set(dayOfTheWeek.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
         UserDefaults.shared.set(price, forKey: UserDefault.budget_price)
         UserDefaults.shared.set(true, forKey: UserDefault.budget_is_on)
-        
         WidgetCenter.shared.reloadAllTimelines()
         
-        CloudDataManager.sharedInstance.copyFileToCloud()
-    }
-    
-    static func migrate() {
-        let termRawValue = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_term)
-        let startDay = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_start_day)
-        let dayOfWeekRawValue = UserDefaults.standard.integer(forKey: UserDefault.budget_cycle_start_day_of_week)
-        let price = UserDefaults.standard.double(forKey: UserDefault.budget_price)
-        
-        UserDefaults.shared.set(termRawValue, forKey: UserDefault.budget_cycle_term)
-        UserDefaults.shared.set(startDay, forKey: UserDefault.budget_cycle_start_day)
-        UserDefaults.shared.set(dayOfWeekRawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
-        UserDefaults.shared.set(price, forKey: UserDefault.budget_price)
-        UserDefaults.shared.set(true, forKey: UserDefault.budget_is_on)
-        
-        CloudDataManager.sharedInstance.copyFileToCloud()
+        NSUbiquitousKeyValueStore.default.set(cycleTerm.rawValue, forKey: UserDefault.budget_cycle_term)
+        NSUbiquitousKeyValueStore.default.set(startDay, forKey: UserDefault.budget_cycle_start_day)
+        NSUbiquitousKeyValueStore.default.set(dayOfTheWeek.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
+        NSUbiquitousKeyValueStore.default.set(price, forKey: UserDefault.budget_price)
+        NSUbiquitousKeyValueStore.default.set(true, forKey: UserDefault.budget_is_on)
+        NSUbiquitousKeyValueStore.default.synchronize()
     }
     
     static func reset() {
@@ -95,7 +109,12 @@ struct Budget {
         UserDefaults.shared.set(false, forKey: UserDefault.budget_is_on)
         WidgetCenter.shared.reloadAllTimelines()
         
-        CloudDataManager.sharedInstance.copyFileToCloud()
+        NSUbiquitousKeyValueStore.default.set(CycleTerm.monthly.rawValue, forKey: UserDefault.budget_cycle_term)
+        NSUbiquitousKeyValueStore.default.set(1, forKey: UserDefault.budget_cycle_start_day)
+        NSUbiquitousKeyValueStore.default.set(DayOfTheWeek.monday.rawValue, forKey: UserDefault.budget_cycle_start_day_of_week)
+        NSUbiquitousKeyValueStore.default.set(0, forKey: UserDefault.budget_price)
+        NSUbiquitousKeyValueStore.default.set(false, forKey: UserDefault.budget_is_on)
+        NSUbiquitousKeyValueStore.default.synchronize()
     }
     
     static func isSavedBudget() -> Bool {
@@ -164,9 +183,9 @@ struct Budget {
         }
     }
     
-    func items(types: [ItemType]) throws -> [Item] {
+    func items(types: [ItemType]) -> [Item] {
         guard let startDate = startDate() else { return [Item]() }
-        return try AppDatabase.shared.loadItems(fromDateInt: startDate.toInt, types: types)
+        return CoreData.shared.loadItems(fromDateInt: startDate.toInt, types: types)
     }
     
     var shortStartDay: String? {

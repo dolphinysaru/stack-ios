@@ -50,8 +50,7 @@ class StatMonthlyViewController: BaseViewController {
     }
     
     override func updateData() {
-        self.items = (try? AppDatabase.shared.loadItems(fromDateInt: startDate.toInt, toDateInt: endDate.toInt, types: [.expenditure, .income])) ?? [Item]()
-        
+        self.items = CoreData.shared.loadItems(fromDateInt: startDate.toInt, toDateInt: endDate.toInt, types: [.expenditure, .income])
         self.sortByItems = Item.sortByDate(items: items)
         
         totalIncome = items.filter {

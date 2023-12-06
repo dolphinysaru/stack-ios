@@ -50,7 +50,7 @@ class CategoryEditViewController: BaseViewController {
     override func updateData() {
         self.title = categoryType.editViewTitle
         
-        let categories = (try? AppDatabase.shared.loadCategories(type: categoryType)) ?? [Category]()
+        let categories = CoreData.shared.loadCategories(type: categoryType)
         
         self.categories = categories.filter { $0.visible }
         self.removedCategories = categories.filter { !$0.visible }
@@ -96,7 +96,7 @@ extension CategoryEditViewController: UITableViewDelegate, UITableViewDataSource
         
         cell.didTapRemoveToggleButton = { [weak self] in
             category.visible = !category.visible
-            try? AppDatabase.shared.saveCategory(&category)
+            CoreData.shared.saveCategory(category, isNew: false)
             self?.updateData()
         }
         

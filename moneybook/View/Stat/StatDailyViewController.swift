@@ -28,7 +28,7 @@ class StatDailyViewController: BaseViewController {
     var totalExpend: Double = 0
     
     override func updateData() {
-        self.items = (try? AppDatabase.shared.loadItems(dateInt: selectedDate.toInt, types: [.expenditure, .income])) ?? [Item]()
+        self.items = CoreData.shared.loadItems(dateInt: selectedDate.toInt, types: [.expenditure, .income])
         
         self.sortByItems = Item.sortByDate(items: items)
         

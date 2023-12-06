@@ -17,16 +17,18 @@ class AddItemManager {
     var payment: Category?
     var kind: Category?
     var memo: String = ""
-        
-    func setup(type: ItemType, price: Double, date: Date) {
+    var isNew: Bool = false
+    
+    func setup(type: ItemType, price: Double, date: Date, isNew: Bool) {
         self.type = type
         self.price = price
         self.date = date
+        self.isNew = isNew
     }
     
     func save(id: Int64? = nil) {
         guard let kindId = kind?.id else { return }
-        var item = Item(
+        let item = Item(
             id: id,
             price: price,
             type: type,
@@ -38,8 +40,7 @@ class AddItemManager {
             memo: memo
         )
         
-        try? AppDatabase.shared.saveItem(&item)
-        
+        CoreData.shared.saveItem(item, isNew: isNew)
         ReviewHelper.reviewIfNeeded()
     }
 }

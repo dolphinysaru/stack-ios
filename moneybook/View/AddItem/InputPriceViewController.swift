@@ -86,7 +86,8 @@ class InputPriceViewController: BaseViewController {
         AddItemManager.shared.setup(
             type: type == .expenditure ? .expenditure : .income,
             price: priceTextField.doubleValue,
-            date: datePicker.date
+            date: datePicker.date,
+            isNew: editItem == nil
         )
     }
     

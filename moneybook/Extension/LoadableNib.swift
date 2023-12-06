@@ -24,7 +24,7 @@ public extension LoadableNib where Self: UIView {
         UINib(nibName: nibName, bundle: Bundle.main)
     }
 
-    static func loadViewWithNib(owner: Any? = self) -> Self {
+    static func loadViewWithNib(owner: Any? = LoadableNib.self) -> Self {
         let viewList: [Any] = loadNib.instantiate(withOwner: owner, options: nil)
         guard !viewList.isEmpty, let view = viewList.first as? Self else { fatalError("Failed load nib file name: \(nibName)") }
 

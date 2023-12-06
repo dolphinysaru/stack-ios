@@ -56,8 +56,7 @@ class CategorySelectionViewController: BaseViewController {
     }
     
     func loadData() {
-        let categories = try? AppDatabase.shared.loadCategories(type: categoryType)
-        guard let categories = categories else { return }
+        let categories = CoreData.shared.loadCategories(type: categoryType)
         self.categories = categories.filter { $0.visible }
         
         collectionView.reloadData()

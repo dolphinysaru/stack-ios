@@ -27,7 +27,7 @@ class BugetReportViewController: BaseViewController {
     }
     
     func loadItems() {
-        guard let items = try? budget.items(types: [.expenditure]) else { return }
+        let items = budget.items(types: [.expenditure])
         
         self.items = Item.sortByDate(items: items)
         updateDataOfChart(items: items)

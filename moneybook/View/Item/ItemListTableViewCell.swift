@@ -24,7 +24,7 @@ class ItemListTableViewCell: UITableViewCell {
     }
  
     func updateUI(item: Item) {
-        if let category = try? AppDatabase.shared.loadCategory(item.kindId) {
+        if let category = CoreData.shared.loadCategory(item.kindId) {
             let image = UIImage.imageWithEmoji(emoji: category.icon, fontSize: 100, size: CGSize(width: 200, height: 200))
             iconImageView.image = image
             

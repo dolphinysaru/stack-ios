@@ -13,46 +13,69 @@ import AppTrackingTransparency
 import AdSupport
 import WidgetKit
 import FirebaseMessaging
+import CoreData
 
 let isEnabledAd = true
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    let ubiquitousStore = NSUbiquitousKeyValueStore.default
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        NSUbiquitousKeyValueStore.default.synchronize()
+        // 테스트 코드
+//        CoreData.shared.resetCategory()
+        
+        
+        // 테스크 코드
+//        NSUbiquitousKeyValueStore.default.set(false, forKey: "core_date_migration")
+//        NSUbiquitousKeyValueStore.default.synchronize()
+//        CoreData.shared.removeAllCategory()
         
         let _ = InAppProducts.store
         
         FirebaseApp.configure()
         RemoteConfigManager.shared.fetch()
+        Budget.syncIcloud()
         
-        if CloudDataManager.sharedInstance.isCloudEnabled() {
-            CloudDataManager.sharedInstance.createDirICloud()
-            
-            let isExist = CloudDataManager.sharedInstance.isExistCloudFile()
-            if isExist {
-                CloudDataManager.sharedInstance.copyFileToLocal()
-            }
-        }
-        
-        let isSetCategory = UserDefaults.standard.bool(forKey: "is_initial_category")
-        if !UserDefaults.standard.bool(forKey: "is_migrate_appgroup_1") && isSetCategory {
-            try? AppDatabase.migrateAppGroup()
-            CurrencyManager.migrate()
-            Budget.migrate()
-            
-            WidgetCenter.shared.reloadAllTimelines()
+        if CoreDataMigration.shared.isNeedMigrationCoreData() {
+            CoreDataMigration.shared.migrationIfNeeded()
         } else {
-            try? AppDatabase.shared.initialCategory()
+            CoreData.shared.initialCategory()
             CurrencyManager.setupCurrencyIfNeeded()
         }
         
-        UserDefaults.standard.set(true, forKey: "is_migrate_appgroup_1")
         initViewControllers()
-                
+        registerKeyValueStoreObserver()
+        
         return true
+    }
+    
+    func registerKeyValueStoreObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(storeDidChange(_:)),
+            name: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+            object: ubiquitousStore
+        )
+    }
+    
+    // iCloud 데이터가 변경되면 호출되는 메서드
+    @objc
+    func storeDidChange(_ notification: Notification) {
+        if let userInfo = notification.userInfo {
+            // 변경된 키-값 쌍 확인
+            if let changedKeys = userInfo[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] {
+                for key in changedKeys {
+                    if let value = ubiquitousStore.object(forKey: key) {
+                        print("Key: \(key), Value: \(value)")
+                    }
+                }
+            }
+        }
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -62,12 +85,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         UIApplication.shared.applicationIconBadgeNumber = 0
         
-        if #available(iOS 14, *) {
-            ATTrackingManager.requestTrackingAuthorization(completionHandler: { [weak self] _ in
-                // Tracking authorization completed. Start loading ads here.
-                
-            })
-        }
+        ATTrackingManager.requestTrackingAuthorization(completionHandler: { _ in
+            // Tracking authorization completed. Start loading ads here.
+            
+        })
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

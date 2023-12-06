@@ -65,21 +65,7 @@ extension AppDatabase {
     /// The database for the application
     static let shared = makeShared()
     static let old = oldShared()
-    
-    internal static func migrateAppGroup() throws {
-        let categories = try AppDatabase.old.loadAllCategories()
-        try categories.forEach {
-            var category = $0
-            try AppDatabase.shared.saveCategory(&category)
-        }
         
-        let items = try AppDatabase.old.loadAllItems()
-        try items.forEach {
-            var item = $0
-            try AppDatabase.shared.saveItem(&item)
-        }
-    }
-    
     static func dbUrl() -> URL {
         do {
             let fileManager = FileManager()

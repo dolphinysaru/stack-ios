@@ -17,20 +17,21 @@ extension AppDatabase {
         return items ?? [Item]()
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func saveItem(_ item: inout Item) throws {
         try dbWriter.write { db in
             try item.save(db)
         }
-        
-        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func loadItem(_ id: Int64) throws -> Item? {
         return try? databaseReader.read { db in
             try Item.fetchOne(db, sql: "SELECT * FROM Item where id = :id", arguments: ["id": id])
         }
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func loadItems(dateInt: Int, types: [ItemType]) throws -> [Item] {
         let items: [Item]? = try? databaseReader.read { db in
             try Item.fetchAll(db, sql: "SELECT * FROM Item WHERE dateInt = :dateInt", arguments: ["dateInt": dateInt])
@@ -41,7 +42,7 @@ extension AppDatabase {
         }.sorted(by: { $0.date < $1.date }) ?? [Item]()
     }
     
-    
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func loadItems(fromDateInt: Int, toDateInt: Int, sign: String = "<=", types: [ItemType]) throws -> [Item] {
         let items: [Item]? = try? databaseReader.read { db in
             try Item.fetchAll(db, sql: "SELECT * FROM Item WHERE dateInt >= '\(fromDateInt)' AND dateInt \(sign) '\(toDateInt)'")
@@ -52,6 +53,7 @@ extension AppDatabase {
         }.sorted(by: { $0.date < $1.date }) ?? [Item]()
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func loadItems(fromDateInt: Int, types: [ItemType]) throws -> [Item] {
         let items: [Item]? = try? databaseReader.read { db in
             try Item.fetchAll(db, sql: "SELECT * FROM Item where dateInt >= '\(fromDateInt)'")
@@ -62,13 +64,12 @@ extension AppDatabase {
         }.sorted(by: { $0.date < $1.date }) ?? [Item]()
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func removeItem(_ item: Item) throws {
         guard let id = item.id else { return }
         
         try dbWriter.write { db in
             _ = try Item.deleteAll(db, ids: [id])
         }
-        
-        CloudDataManager.sharedInstance.copyFileToCloud()
     }
 }

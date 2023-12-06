@@ -43,21 +43,35 @@ struct ShortcutWidgetEntryView : View {
     var entry: SimpleEntry
 //    let budget = Budget.load().totalExpend
     let budgetPrice = UserDefaults(suiteName: appGroupName)?.double(forKey: UserDefault.budget_price) ?? 0
-                      
-    @State var progressValue: Float = Float(Budget.load().totalExpend / (UserDefaults(suiteName: appGroupName)?.double(forKey: UserDefault.budget_price) ?? 0))
+    let totalExpend = UserDefaults(suiteName: appGroupName)?.double(forKey: UserDefault.budget_totalspend) ?? 0
+    
+    @State var progressValue: Float = Float((UserDefaults(suiteName: appGroupName)?.double(forKey: UserDefault.budget_totalspend) ?? 0) / (UserDefaults(suiteName: appGroupName)?.double(forKey: UserDefault.budget_price) ?? 0))
         
     var body: some View {
         VStack {
             ProgressBar(progress: self.$progressValue)
                                 .padding()
             
-            Text("\(CurrencyManager.currencySymbol) " + "\(Budget.load().totalExpend)".price())
+            Text("\(CurrencyManager.currencySymbol) " + "\(UserDefaults(suiteName: appGroupName)?.double(forKey: UserDefault.budget_totalspend) ?? 0)".price())
                 .bold()
             
             Text("/ " + "\(CurrencyManager.currencySymbol) " + "\(budgetPrice)".price())
                 .font(.system(size: 13)).foregroundColor(.secondary)
         }
         .padding(6)
+        .conditionalContainerBackground()
+    }
+}
+
+
+extension View {
+    @ViewBuilder
+    func conditionalContainerBackground() -> some View {
+        if #available(iOS 17, *) {
+            self.containerBackground(.black, for: .widget)
+        } else {
+            self
+        }
     }
 }
 
@@ -67,13 +81,13 @@ struct ProgressBar: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(lineWidth: 20.0)
+                .stroke(lineWidth: 10.0)
                 .opacity(0.3)
                 .foregroundColor(Color.blue)
             
             Circle()
                 .trim(from: 0.0, to: CGFloat(min(self.progress, 1.0)))
-                .stroke(style: StrokeStyle(lineWidth: 20.0, lineCap: .round, lineJoin: .round))
+                .stroke(style: StrokeStyle(lineWidth: 10.0, lineCap: .round, lineJoin: .round))
                 .foregroundColor(Color.blue)
                 .rotationEffect(Angle(degrees: 270.0))
                 .animation(.linear)

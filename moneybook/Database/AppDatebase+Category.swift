@@ -16,6 +16,7 @@ extension AppDatabase {
         return categories ?? [Category]()
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     internal func loadAllCategories() throws -> [Category] {
         let categories: [Category]? = try? databaseReader.read { db in
             try Category.fetchAll(db, sql: "SELECT * FROM category")
@@ -24,14 +25,14 @@ extension AppDatabase {
         return categories ?? [Category]()
     }
         
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func saveCategory(_ category: inout Category) throws {
         try dbWriter.write { db in
             try category.save(db)
         }
-        
-        CloudDataManager.sharedInstance.copyFileToCloud()
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func initialCategory() throws {
         let isSetCategory = UserDefaults.standard.bool(forKey: "is_initial_category")
         if isSetCategory {
@@ -98,6 +99,7 @@ extension AppDatabase {
         }
     }
     
+    @available(*, deprecated, message: "This function will no longer be used in the future. Use anotherFunction() instead.")
     func loadCategory(_ id: Int64) throws -> Category? {
         return try? databaseReader.read { db in
             try Category.fetchOne(db, sql: "SELECT * FROM category where id = :id", arguments: ["id": id])
