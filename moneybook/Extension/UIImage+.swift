@@ -19,11 +19,11 @@ extension UIImage {
             label.sizeToFit()
         }
 
-        UIGraphicsBeginImageContextWithOptions(label.bounds.size, false, 0.0)
-        guard let context = UIGraphicsGetCurrentContext() else { return UIImage() }
-        label.layer.render(in: context)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image ?? UIImage()
+        let renderer = UIGraphicsImageRenderer(size: label.bounds.size)
+        let image = renderer.image { _ in
+            label.layer.render(in: UIGraphicsGetCurrentContext()!)
+        }
+
+        return image
     }
 }

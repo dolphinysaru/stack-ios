@@ -42,7 +42,7 @@ class ItemListTableViewCell: UITableViewCell {
         }
     }
     
-    func updateUI(title: String, icon: UIImage, selection: UITableViewCell.SelectionStyle = .none) {
+    func updateUI(title: String, icon: UIImage?, selection: UITableViewCell.SelectionStyle = .none) {
         iconImageView.image = icon
         titleLabel.text = title
         selectionStyle = selection
