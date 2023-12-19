@@ -92,4 +92,17 @@ class CoreDataMigration {
         
         return false
     }
+    
+    func migrateId() {
+        let migration = NSUbiquitousKeyValueStore.default.bool(forKey: "core_data_id_migrate")
+        if migration {
+            return
+        }
+        
+        NSUbiquitousKeyValueStore.default.set(true, forKey: "core_data_id_migrate")
+        NSUbiquitousKeyValueStore.default.synchronize()
+        
+        CoreData.shared.reorderCategory()
+        CoreData.shared.reorderItem()
+    }
 }

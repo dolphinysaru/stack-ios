@@ -77,9 +77,31 @@ class CoreData {
         }
     }
     
-    func loadAllCategories() -> [Category] {
+    func reorderCategory() {
         do {
-            let categories = try self.container.viewContext.fetch(CoreCategory.fetchRequest()) as! [CoreCategory]
+            let fetchRequest: NSFetchRequest<CoreCategory> = CoreCategory.fetchRequest()
+            let categories = try self.container.viewContext.fetch(fetchRequest)
+            
+            for (index, object) in categories.enumerated() {
+                object.id = Int64(index)
+            }
+            
+        } catch {
+            
+        }
+        
+        saveContext()
+    }
+    
+    func loadAllCategories(sort: Bool = false) -> [Category] {
+        do {
+            let fetchRequest: NSFetchRequest<CoreCategory> = CoreCategory.fetchRequest()
+            
+            if sort {
+                fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+            }
+            
+            let categories = try self.container.viewContext.fetch(fetchRequest)
             let cate = categories.map { c in
                 Category(
                     id: c.id,
@@ -199,26 +221,15 @@ class CoreData {
         initPaymentCategory()
     }
     
-    func fetchCategoryCount() -> Int {
-        let fetchRequest: NSFetchRequest<CoreCategory> = CoreCategory.fetchRequest()
-
-        do {
-            let count = try self.container.viewContext.count(for: fetchRequest)
-            return count
-        } catch {
-            print("Error fetching category count: \(error)")
-            return 0
-        }
-    }
-    
     func saveCategory(_ c: Category, isNew: Bool = true) {
         guard let categoryEntity = NSEntityDescription.entity(forEntityName: "CoreCategory", in: self.container.viewContext) else { return }
         
         if isNew {
-            let count = fetchCategoryCount()
+            let categories = loadAllCategories(sort: true)
+            let id = (categories.last?.id ?? 0) + 1
             
             let category = NSManagedObject(entity: categoryEntity, insertInto: self.container.viewContext)
-            category.setValue(count + 1, forKey: "id")
+            category.setValue(id, forKey: "id")
             category.setValue(c.icon, forKey: "icon")
             category.setValue(c.title, forKey: "title")
             category.setValue(c.updateAt, forKey: "updateAt")

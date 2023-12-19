@@ -33,6 +33,22 @@ extension CoreData {
         return [Item]()
     }
     
+    func reorderItem() {
+        do {
+            let fetchRequest: NSFetchRequest<CoreItem> = CoreItem.fetchRequest()
+            let items = try self.container.viewContext.fetch(fetchRequest)
+            
+            for (index, object) in items.enumerated() {
+                object.id = Int64(index)
+            }
+            
+        } catch {
+            
+        }
+        
+        saveContext()
+    }
+    
     func fetchItemCount() -> Int {
         let fetchRequest: NSFetchRequest<CoreItem> = CoreItem.fetchRequest()
 
@@ -45,14 +61,32 @@ extension CoreData {
         }
     }
     
+    func loadItems(sort: Bool = false) -> [CoreItem] {
+        do {
+            let fetchRequest: NSFetchRequest<CoreItem> = CoreItem.fetchRequest()
+            
+            if sort {
+                fetchRequest.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+            }
+            
+            let items = try self.container.viewContext.fetch(fetchRequest)
+            return items
+        } catch {
+            
+        }
+        
+        return [CoreItem]()
+    }
+    
     func saveItem(_ i: Item, isNew: Bool = true) {
         guard let itemEntity = NSEntityDescription.entity(forEntityName: "CoreItem", in: self.container.viewContext) else { return }
         
-        let count = fetchItemCount()
-        
         if isNew {
+            let items = loadItems(sort: true)
+            let id = (items.last?.id ?? 0) + 1
+            
             let item = NSManagedObject(entity: itemEntity, insertInto: self.container.viewContext)
-            item.setValue(count + 1, forKey: "id")
+            item.setValue(id, forKey: "id")
             item.setValue(i.price, forKey: "price")
             item.setValue(i.type.rawValue, forKey: "type")
             item.setValue(i.kindId, forKey: "kindId")

@@ -48,6 +48,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             CurrencyManager.setupCurrencyIfNeeded()
         }
         
+        CoreDataMigration.shared.migrateId()
+        
         initViewControllers()
         registerKeyValueStoreObserver()
         
