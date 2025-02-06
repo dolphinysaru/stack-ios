@@ -83,6 +83,10 @@ class IAPHelper: NSObject  {
         buyResultCompletion = completion
     }
     
+    public func isProVersion() -> Bool {
+        return InAppProducts.store.isProductPurchased(InAppProducts.product)
+    }
+    
     public func isProductPurchased(_ productIdentifier: ProductIdentifier) -> Bool {
         return purchasedProductIdentifiers.contains(productIdentifier)
     }

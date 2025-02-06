@@ -54,7 +54,7 @@ class PlanViewController: BaseViewController {
                 
                 // Consent has been gathered.
                 if UMPConsentInformation.sharedInstance.canRequestAds {
-                    self.startGoogleMobileAdsSDK()
+                    self.startGoogleMobileAdsSDK(appopen: true)
                 }
             }
         }
@@ -63,11 +63,11 @@ class PlanViewController: BaseViewController {
         // while checking for new consent information. Consent obtained in
         // the previous session can be used to request ads.
         if UMPConsentInformation.sharedInstance.canRequestAds {
-            startGoogleMobileAdsSDK()
+            startGoogleMobileAdsSDK(appopen: false)
         }
     }
     
-    private func startGoogleMobileAdsSDK() {
+    private func startGoogleMobileAdsSDK(appopen: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             guard !self.isMobileAdsStartCalled else { return }
@@ -78,6 +78,10 @@ class PlanViewController: BaseViewController {
             GADMobileAds.sharedInstance().start()
             
             self.loadGABannerView()
+            
+            if appopen {
+                (UIApplication.shared.delegate as! AppDelegate).requestAppOpenAd()
+            }
         }
     }
     

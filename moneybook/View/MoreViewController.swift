@@ -15,7 +15,7 @@ import SafariServices
 class MoreViewController: BaseViewController {
     enum Section: Int, CaseIterable {
         case iap
-        case featured
+//        case featured
         case review
         case category
         case plan
@@ -25,8 +25,8 @@ class MoreViewController: BaseViewController {
             switch self {
             case .iap:
                 return "buy".localized()
-            case .featured:
-                return "featured".localized()
+//            case .featured:
+//                return "featured".localized()
             case .review:
                 return "service".localized()
             case .category:
@@ -214,8 +214,8 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
                 self.present(alert, animated: true, completion: nil)
             }
             
-        case .featured:
-            break
+//        case .featured:
+//            break
             
         case .review:
             if indexPath.row == 0 {
@@ -266,10 +266,10 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
         switch s {
         case .iap:
             return InAppProducts.store.isProductPurchased(InAppProducts.product) ? 2 : 3
-        case .featured:
-            return featuredApp.count
+//        case .featured:
+//            return featuredApp.count
         case .review:
-            return 3
+            return 2
         case .category:
             return 3
         case .plan:
@@ -300,16 +300,16 @@ extension MoreViewController: UITableViewDelegate, UITableViewDataSource {
             
             return cell
             
-        case .featured:
-            let app = featuredApp[indexPath.row]
-            let cell = tableView.dequeueReusableCell(withIdentifier: "FeaturedTableViewCell", for: indexPath) as! FeaturedTableViewCell
-            cell.updateUI(
-                icon: app.icon,
-                appname: app.appname.localiedString,
-                description: app.description.localiedString,
-                appId: app.appid
-            )
-            return cell
+//        case .featured:
+//            let app = featuredApp[indexPath.row]
+//            let cell = tableView.dequeueReusableCell(withIdentifier: "FeaturedTableViewCell", for: indexPath) as! FeaturedTableViewCell
+//            cell.updateUI(
+//                icon: app.icon,
+//                appname: app.appname.localiedString,
+//                description: app.description.localiedString,
+//                appId: app.appid
+//            )
+//            return cell
         case .review:
             let cell = tableView.dequeueReusableCell(MoreTableViewCell.self, forIndexPath: indexPath)
             if indexPath.row == 0 {

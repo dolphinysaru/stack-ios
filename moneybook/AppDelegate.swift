@@ -14,6 +14,7 @@ import AdSupport
 import WidgetKit
 import FirebaseMessaging
 import CoreData
+import UserMessagingPlatform
 
 let isEnabledAd = true
 
@@ -21,6 +22,10 @@ let isEnabledAd = true
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     let ubiquitousStore = NSUbiquitousKeyValueStore.default
+    var appOpenAd: GADAppOpenAd?
+    var isEnterBackground = true
+    var adUnitID: String = "ca-app-pub-2613397310926695/4216714081"
+    let gcmMessageIDKey = "gcm.message_id"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -87,10 +92,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         UIApplication.shared.applicationIconBadgeNumber = 0
         
-        ATTrackingManager.requestTrackingAuthorization(completionHandler: { _ in
-            // Tracking authorization completed. Start loading ads here.
-            
-        })
+        if !isEnterBackground {
+            return
+        }
+        
+        isEnterBackground = false
+        appOpenAd = nil
+        
+        if UMPConsentInformation.sharedInstance.canRequestAds {
+            self.requestAppOpenAd()
+        }
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -116,5 +127,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let moreNV = UINavigationController(rootViewController: moreVC)
         
         tabBarController.setViewControllers([planNV, statNV, moreNV], animated: true)
+    }
+}
+
+extension AppDelegate {
+    func requestAppOpenAd() {
+        guard !InAppProducts.store.isProVersion() else { return }
+        
+#if DEBUG
+        adUnitID = "ca-app-pub-3940256099942544/5575463023"
+#endif
+        
+        appOpenAd = nil
+        GADAppOpenAd.load(
+            withAdUnitID: adUnitID,
+            request: GADRequest()) { [weak self] (ad, error) in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("Failed to load app open ad: \(error)");
+                    
+                    return
+                }
+                
+                self.appOpenAd = ad
+                self.appOpenAd?.fullScreenContentDelegate = self
+                self.tryToPresentAd()
+            }
+    }
+    
+    func tryToPresentAd() {
+        if let ad = appOpenAd {
+            if let vc = window?.rootViewController?.presentedViewController {
+                ad.present(fromRootViewController: vc)
+            } else if let vc = window?.rootViewController {
+                ad.present(fromRootViewController: vc)
+            }
+        }
+    }
+}
+
+extension AppDelegate: GADFullScreenContentDelegate {
+    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("Ad did fail to present full screen content.")
+    }
+    
+    /// Tells the delegate that the ad dismissed full screen content.
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        print("Ad did dismiss full screen content.")
     }
 }
